@@ -1,25 +1,42 @@
-"""Context Assembler — build context window with priorities."""
+"""Context Assembler — token-budget-aware priority assembly."""
+
+from __future__ import annotations
+
+from typing import List, Optional
+
+from .tokenizer import TokenCounter
 
 
 class ContextAssembler:
     """Assemble context window with memory units and priorities.
 
-    Partitions context using Markdown headings for LLM understanding.
+    Respects token budget by truncating lower-priority sections.
     """
 
-    def __init__(self, max_tokens: int = 8000):
+    def __init__(
+        self, tokenizer: TokenCounter, max_tokens: int = 8000
+    ) -> None:
+        self.tokenizer = tokenizer
         self.max_tokens = max_tokens
 
-    def assemble(self, memory_units: list, priority_order: list[str] = None) -> str:
+    def assemble(
+        self,
+        memory_units: list,
+        priority_order: Optional[List[str]] = None,
+        token_budget: Optional[int] = None,
+    ) -> str:
         """Assemble memory units into a structured context block.
 
         Args:
             memory_units: List of MemoryUnit objects
             priority_order: Order of memory types by priority
+            token_budget: Override max_tokens for this call
 
         Returns:
-            Markdown-formatted context string
+            Markdown-formatted context string within token budget
         """
+        budget = token_budget or self.max_tokens
+
         if priority_order is None:
             priority_order = [
                 "knowledge",
@@ -27,21 +44,64 @@ class ContextAssembler:
                 "workflow",
                 "entity",
                 "summary",
+                "toolbox",
+                "tool_log",
             ]
 
-        sections = []
+        # Group by type
+        by_type: dict = {}
+        for unit in memory_units:
+            t = getattr(unit, "type", None)
+            if t:
+                by_type.setdefault(t, []).append(unit)
+
+        sections: List[str] = []
+        used_tokens = 0
+
         for mem_type in priority_order:
-            typed_units = [u for u in memory_units if getattr(u, "type", None) == mem_type]
-            if typed_units:
-                section = self._format_section(mem_type, typed_units)
-                sections.append(section)
+            units = by_type.get(mem_type, [])
+            if not units:
+                continue
+
+            # Format section
+            heading = mem_type.replace("_", " ").title()
+            lines = [f"## {heading}"]
+            for unit in units[:5]:
+                content = unit.content[:300]
+                lines.append(f"- {content}")
+            section_text = "\n".join(lines)
+            section_tokens = self.tokenizer.count_text(section_text)
+
+            # Check budget
+            if used_tokens + section_tokens <= budget:
+                sections.append(section_text)
+                used_tokens += section_tokens
+            else:
+                # Partial fit: truncate content to fit remaining budget
+                remaining = budget - used_tokens
+                if remaining > 50:
+                    truncated = self._truncate_section(mem_type, units, remaining)
+                    sections.append(truncated)
+                break
 
         return "\n\n".join(sections)
 
-    def _format_section(self, mem_type: str, units: list) -> str:
-        """Format a memory type section."""
+    def _truncate_section(
+        self, mem_type: str, units: list, token_budget: int
+    ) -> str:
+        """Truncate a section to fit within token budget."""
         heading = mem_type.replace("_", " ").title()
         lines = [f"## {heading}"]
-        for unit in units[:5]:  # Limit per section
-            lines.append(f"- {unit.content[:200]}")
+        used = self.tokenizer.count_text(heading)
+
+        for unit in units[:5]:
+            content = unit.content[:300]
+            line = f"- {content}"
+            line_tokens = self.tokenizer.count_text(line)
+            if used + line_tokens <= token_budget:
+                lines.append(line)
+                used += line_tokens
+            else:
+                break
+
         return "\n".join(lines)

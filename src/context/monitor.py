@@ -1,29 +1,83 @@
-"""Context Monitor — usage tracking + auto-trigger at 80%."""
+"""Context Monitor — event-driven usage tracking + auto-trigger."""
+
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass, field
+from typing import Callable, List, Optional
+
+from .tokenizer import TokenCounter
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ContextStatus:
+    """Current context window status."""
+
+    current_tokens: int
+    max_tokens: int
+    usage_ratio: float
+    needs_compression: bool
+    remaining_tokens: int
 
 
 class ContextMonitor:
-    """Monitor context window usage and trigger compression.
+    """Monitor context window usage with event callbacks.
 
-    Automatically triggers summarization when context exceeds threshold.
+    Fires registered callbacks when usage exceeds threshold.
     """
 
-    def __init__(self, max_tokens: int = 8000, threshold: float = 0.8):
+    def __init__(
+        self,
+        tokenizer: TokenCounter,
+        max_tokens: int = 8000,
+        threshold: float = 0.8,
+    ) -> None:
+        self.tokenizer = tokenizer
         self.max_tokens = max_tokens
         self.threshold = threshold
-        self.current_usage = 0
+        self._callbacks: List[Callable] = []
 
-    def check(self, token_count: int) -> bool:
-        """Check if compression is needed.
+    def on_threshold(self, callback: Callable) -> None:
+        """Register a callback for when threshold is exceeded."""
+        self._callbacks.append(callback)
 
-        Args:
-            token_count: Current token count
+    def check(self, messages: List[dict]) -> ContextStatus:
+        """Check context usage and fire callbacks if needed.
 
-        Returns:
-            True if compression needed
+        Returns ContextStatus with current state.
         """
-        self.current_usage = token_count
-        return token_count > self.max_tokens * self.threshold
+        current = self.tokenizer.count(messages)
+        ratio = current / self.max_tokens if self.max_tokens > 0 else 0
+        needs = ratio > self.threshold
 
-    def get_usage_percentage(self) -> float:
+        status = ContextStatus(
+            current_tokens=current,
+            max_tokens=self.max_tokens,
+            usage_ratio=ratio,
+            needs_compression=needs,
+            remaining_tokens=max(0, self.max_tokens - current),
+        )
+
+        if needs:
+            logger.warning(
+                "Context usage %.0f%% exceeds threshold %.0f%%",
+                ratio * 100,
+                self.threshold * 100,
+            )
+            for cb in self._callbacks:
+                try:
+                    cb(status)
+                except Exception as e:
+                    logger.error("Callback error: %s", e)
+
+        return status
+
+    def get_usage_percentage(self, messages: List[dict] = None) -> float:
         """Get current usage as percentage."""
-        return (self.current_usage / self.max_tokens) * 100 if self.max_tokens > 0 else 0
+        if messages:
+            current = self.tokenizer.count(messages)
+        else:
+            current = 0
+        return (current / self.max_tokens * 100) if self.max_tokens > 0 else 0

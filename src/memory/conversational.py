@@ -1,32 +1,119 @@
-"""Conversational Memory — episodic chat history (SQLite SQL)."""
+"""Conversational Memory — episodic chat history (SQLite persistence)."""
 
-from .manager import MemoryUnit
+from __future__ import annotations
+
+import json
+from datetime import datetime, timezone
+from typing import List, Optional, Tuple
+
+from .database import Database
+from .models import MemoryUnit
 
 
 class ConversationalMemory:
     """Episodic memory of conversations and interactions.
 
     Stores raw events from the attack cycle: probes, replies, classifications.
-    Maps to TAP's `event_log` + `tweets` tables.
+    Maps to TAP's ``event_log`` + ``tweets`` tables.
     """
 
-    def __init__(self, db=None):
+    def __init__(self, db: Database) -> None:
         self.db = db
 
-    async def store(self, unit: MemoryUnit) -> bool:
-        """Store a conversational memory unit."""
-        if self.db:
-            # Store in event_log table
-            pass
-        return True
+    async def store(self, unit: MemoryUnit) -> MemoryUnit:
+        """Persist a conversational memory unit."""
+        await self.db.execute(
+            """INSERT OR REPLACE INTO memory_units
+               (id, type, content, metadata, timestamp, confidence, decay_rate,
+                last_accessed, access_count, session_id)
+               VALUES (?, 'conversational', ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                unit.id,
+                unit.content,
+                json.dumps(unit.metadata),
+                unit.timestamp.isoformat(),
+                unit.confidence,
+                unit.decay_rate,
+                (unit.last_accessed or unit.timestamp).isoformat(),
+                unit.access_count,
+                unit.session_id,
+            ),
+        )
+        await self.db.commit()
+        return unit
 
     async def recall(
         self, query: str, limit: int = 10, threshold: float = 0.5
-    ) -> list[tuple[MemoryUnit, float]]:
-        """Recall conversational memories by keyword search."""
-        # For now, return empty — will implement with vector search
-        return []
+    ) -> List[Tuple[MemoryUnit, float]]:
+        """Keyword search over conversational memories."""
+        # SQLite FTS-style LIKE search (basic; vector search added by VectorStore layer)
+        rows = await self.db.fetchall(
+            """SELECT * FROM memory_units
+               WHERE type = 'conversational'
+                 AND (content LIKE ? OR metadata LIKE ?)
+               ORDER BY timestamp DESC
+               LIMIT ?""",
+            (f"%{query}%", f"%{query}%", limit),
+        )
+        results: List[Tuple[MemoryUnit, float]] = []
+        for row in rows:
+            unit = self._row_to_unit(row)
+            # Keyword match → fixed score of 0.7 (decent but not vector-quality)
+            results.append((unit, 0.7))
+        return results
+
+    async def get(self, memory_id: str) -> Optional[MemoryUnit]:
+        row = await self.db.fetchone(
+            "SELECT * FROM memory_units WHERE id = ? AND type = 'conversational'",
+            (memory_id,),
+        )
+        return self._row_to_unit(row) if row else None
+
+    async def delete(self, memory_id: str) -> bool:
+        cursor = await self.db.execute(
+            "DELETE FROM memory_units WHERE id = ? AND type = 'conversational'",
+            (memory_id,),
+        )
+        await self.db.commit()
+        return cursor.rowcount > 0
 
     async def count(self) -> int:
-        """Count stored conversational memories."""
-        return 0
+        row = await self.db.fetchone(
+            "SELECT COUNT(*) as cnt FROM memory_units WHERE type = 'conversational'"
+        )
+        return row["cnt"] if row else 0
+
+    async def apply_decay(self) -> int:
+        """Apply exponential decay to confidence scores. Returns count of decayed units."""
+        now = datetime.now(timezone.utc).isoformat()
+        cursor = await self.db.execute(
+            """UPDATE memory_units
+               SET confidence = confidence * exp(-decay_rate * (
+                   (julianday(?) - julianday(COALESCE(last_accessed, timestamp))) * 24
+               ))
+               WHERE type = 'conversational' AND confidence > 0""",
+            (now,),
+        )
+        await self.db.commit()
+        return cursor.rowcount
+
+    # ── Helpers ───────────────────────────────────────────────
+
+    @staticmethod
+    def _row_to_unit(row) -> MemoryUnit:
+        return MemoryUnit(
+            id=row["id"],
+            type=row["type"],
+            content=row["content"],
+            metadata=json.loads(row["metadata"] or "{}"),
+            timestamp=datetime.fromisoformat(row["timestamp"]),
+            confidence=row["confidence"],
+            decay_rate=row["decay_rate"],
+            last_accessed=(
+                datetime.fromisoformat(row["last_accessed"])
+                if row["last_accessed"]
+                else None
+            ),
+            access_count=row["access_count"],
+            session_id=row["session_id"],
+        )

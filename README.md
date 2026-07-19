@@ -4,181 +4,176 @@
 
 ## Overview
 
-**Aware** is a research project that applies the 7-type Memory Manager Pattern from the "Depplearning.ai - Agent Memory" course to the TAP Framework (Tree of Attacks with Pruning), creating a memory-aware adversarial attack pipeline.
+**Aware** is a research project that applies the 7-type Memory Manager Pattern from the "Deeplearning.ai - Agent Memory" course to the TAP Framework (Tree of Attacks with Pruning), creating a memory-aware adversarial attack pipeline.
 
 ### Key Contributions
 
-1. **Agent Memory Integration** — 7 memory types (Conversational, Knowledge Base, Workflow, Toolbox, Entity, Summary, Tool Log) mapped to TAP's existing architecture
-2. **LLM Injection Research** — Comprehensive analysis of 8 NotebookLM notebooks covering attack techniques, success rates, and defenses
-3. **Semantic Recall** — Vector-based deduplication and recall replacing lexical-only Jaccard similarity
-4. **Context Engineering** — Token-aware context window management with auto-compression at 80% threshold
-5. **Passphrase Intelligence** — Real attack data from @HackingA0 with confirmed hypothesis: `Halfway-fish-404`
+1. **Agent Memory Integration** — 7 memory types (Conversational, Knowledge Base, Workflow, Toolbox, Entity, Summary, Tool Log) with real SQLite persistence + vector search
+2. **Knowledge Expansion** — User-expandable attack type knowledge with versioning, countermeasures, import/export, and semantic search
+3. **Semantic Recall** — Vector-based deduplication and recall via sqlite-vss (with brute-force fallback)
+4. **Context Engineering** — Token-aware context window management with tiktoken, LLM summarization, and auto-compression at 80% threshold
+5. **Memory Lifecycle** — Consolidation (episodic → semantic), exponential decay, and cross-session persistence
+6. **Passphrase Intelligence** — Real attack data from @HackingA0 with confirmed hypothesis: `Halfway-fish-404`
 
 ## Repository Structure
 
 ```
 Aware/
-├── README.md                    # This file
-├── docs/
-│   ├── research/
-│   │   ├── llm-injection.md     # LLM Injection research (8 notebooks)
-│   │   ├── mcp-vulnerabilities.md # MCP-specific vulnerabilities
-│   │   └── attack-success-rates.md # ASR data across techniques
-│   ├── analysis/
-│   │   ├── tap-framework.md     # TAP Framework deep analysis
-│   │   ├── data-findings.md     # Data directory analysis
-│   │   └── memory-gaps.md       # Current memory architecture gaps
-│   └── plans/
-│       └── memory-integration.md # 4-phase integration plan
+├── README.md
+├── pyproject.toml                 # Project config + pytest settings
+├── requirements.txt
 ├── src/
+│   ├── __init__.py
+│   ├── config.py                  # Centralized Pydantic settings
 │   ├── memory/
 │   │   ├── __init__.py
-│   │   ├── manager.py           # MemoryManager (unified CRUD)
-│   │   ├── conversational.py    # ConversationalMemory
-│   │   ├── knowledge.py         # KnowledgeMemory + vector store
-│   │   ├── workflow.py          # WorkflowMemory + embeddings
-│   │   ├── toolbox.py           # ToolboxMemory + semantic search
-│   │   ├── entity.py            # EntityMemory + profiles
-│   │   ├── summary.py           # SummaryMemory + compression
-│   │   ├── tool_log.py          # ToolLogMemory + structured query
-│   │   ├── embeddings.py        # Embedding generation
-│   │   ├── consolidation.py     # Episodic → semantic promotion
-│   │   └── decay.py             # Memory staleness scoring
-│   └── context/
-│       ├── __init__.py
-│       ├── tokenizer.py         # Token counting
-│       ├── assembler.py         # Context window assembly
-│       ├── compressor.py        # Summarization + compaction
-│       └── monitor.py           # Usage tracking + auto-trigger
-├── data/                        # Operational data from TAP runs
-│   ├── passphrase_findings.json
-│   ├── all_probes_and_replies.json
-│   ├── eig_property_universe.json
-│   └── ...
-├── .mimocode/
-│   ├── skills/
-│   │   └── notebooklm/SKILL.md  # NotebookLM interaction patterns
-│   └── tools/
-│       └── notebooklm-query.ts  # NotebookLM query tool
-└── plans/
-    └── memory-integration.md    # Detailed implementation plan
+│   │   ├── models.py              # Pydantic schemas (MemoryUnit, AttackType, etc.)
+│   │   ├── database.py            # SQLite schema + connection management
+│   │   ├── embeddings.py          # sentence-transformers wrapper
+│   │   ├── vector_store.py        # sqlite-vss wrapper with fallback
+│   │   ├── manager.py             # MemoryManager (unified CRUD)
+│   │   ├── conversational.py      # ConversationalMemory (SQLite + keyword search)
+│   │   ├── knowledge.py           # KnowledgeMemory (vector search + dedup)
+│   │   ├── knowledge_expansion.py # Attack type knowledge management
+│   │   ├── workflow.py            # WorkflowMemory (semantic dedup)
+│   │   ├── toolbox.py             # ToolboxMemory (semantic tool search)
+│   │   ├── entity.py              # EntityMemory (entity profiles)
+│   │   ├── summary.py             # SummaryMemory (LLM compression)
+│   │   ├── tool_log.py            # ToolLogMemory (audit trail)
+│   │   ├── consolidation.py       # Episodic → semantic promotion
+│   │   ├── decay.py               # Exponential confidence decay
+│   │   └── persistence.py         # Cross-session save/load + backup
+│   ├── context/
+│   │   ├── __init__.py
+│   │   ├── tokenizer.py           # tiktoken-based token counting
+│   │   ├── assembler.py           # Token-budget-aware context assembly
+│   │   ├── compressor.py          # LLM summarization + truncation fallback
+│   │   └── monitor.py             # Event-driven threshold monitoring
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── engine_hooks.py        # AwareEngine (TAP integration interface)
+│   │   └── schemas.py             # Request/response models
+│   └── data/
+│       └── seed_attack_types.json # 12 V-Genome + evasion types
+├── tests/                         # 121 tests, all passing
+│   ├── conftest.py
+│   ├── test_models.py
+│   ├── test_database.py
+│   ├── test_embeddings.py
+│   ├── test_vector_store.py
+│   ├── test_memory_*.py           # Per-type memory tests
+│   ├── test_knowledge_expansion.py
+│   ├── test_consolidation.py
+│   ├── test_decay.py
+│   ├── test_persistence.py
+│   ├── test_context_engineering.py
+│   ├── test_manager.py
+│   ├── test_engine_hooks.py
+│   └── integration/
+│       ├── test_full_pipeline.py
+│       └── test_cross_session.py
+├── data/                          # Operational data from TAP runs
+└── docs/
+    ├── analysis/                  # TAP framework analysis, memory gaps
+    ├── plans/                     # Integration plan
+    └── research/                  # LLM injection, MCP vulnerabilities
 ```
 
 ## Quick Start
 
 ```bash
-# Clone the repo
-git clone https://github.com/CarlSamma/Aware.git
 cd Aware
-
-# Install dependencies (TAP Framework)
 pip install -r requirements.txt
 
-# Run the memory manager
-PYTHONPATH=src python -c "from memory import MemoryManager; print('OK')"
+# Run tests
+python -m pytest tests/ -v -p no:postgresql
+
+# Use the engine
+python -c "
+import asyncio
+from src.api.engine_hooks import AwareEngine
+from src.memory.models import AttackType
+
+async def main():
+    engine = AwareEngine()
+    await engine.initialize()
+
+    # Add a new attack type
+    at = AttackType(name='my_attack', category='custom', description='My custom attack')
+    await engine.add_attack_type(at)
+
+    # Search attack types
+    results = await engine.search_attack_types('custom attack')
+    print(f'Found {len(results)} attack types')
+
+    await engine.close()
+
+asyncio.run(main())
+"
 ```
 
-## Research Findings
+## Knowledge Expansion API
 
-### LLM Injection Attack Success Rates
+Users can expand attack type knowledge at runtime:
 
-| Technique | ASR | Target |
-|-----------|-----|--------|
-| TAP | 64% avg, 81% (GPT-3.5) | Black-box |
-| TRIAL | 87% | GLM-4-Plus |
-| FigStep-Pro | 89% (CBRN) | Llama-4 |
-| Many-Shot | ~100% | >128k context |
-| GCG | 97-100% | White-box |
-| QueryIPI | 87% avg | Coding agents |
+```python
+from memory.knowledge_expansion import KnowledgeExpansion
+from memory.models import AttackType, Countermeasure
 
-### MCP Vulnerabilities
+# Add attack type with metadata
+at = AttackType(
+    name="custom_injection",
+    category="injection",
+    description="Novel injection technique",
+    asr=0.75,
+    stealth_rating=0.9,
+    target="black-box",
+    example_probes=["Probe example 1", "Probe example 2"],
+    tags=["injection", "custom"],
+)
+await expansion.add_attack_type(at)
 
-| Vulnerability | Risk Level |
-|--------------|------------|
-| Tool Poisoning | CRITICAL |
-| Rug Pulls | CRITICAL |
-| Cross-Server Shadowing | CRITICAL |
-| Confused Deputy | HIGH |
-| Third-Party Content Exposure | MEDIUM |
+# Add countermeasures
+cm = Countermeasure(
+    name="input validation",
+    description="Validate and sanitize all user inputs",
+    effectiveness=0.8,
+    category="architectural",
+)
+await expansion.add_countermeasure(at.id, cm)
 
-### TAP Framework Memory Gaps
+# Import from JSON/YAML
+await expansion.import_from_json("my_attack_types.json")
 
-1. **NO VECTOR STORE** — Lexical-only (Jaccard, regex)
-2. **NO CONTEXT WINDOW MANAGEMENT** — No token counting
-3. **NO MEMORY CONSOLIDATION** — Events fire-and-forget
-4. **NO MEMORY DECAY** — All facts permanent
-5. **NO RECALL/RETRIEVAL API** — No semantic search
-6. **NO MEMORY TYPE DISTINCTION** — Everything flat
-7. **NO CROSS-SESSION LEARNING** — Memory per-run
+# Export knowledge base
+await expansion.export_to_json("knowledge_backup.json")
 
-### Passphrase Intelligence
+# Semantic search
+results = await expansion.search_attack_types("social engineering")
 
-**Hypothesis**: `Halfway-fish-404` (word-word-number, 13-16 chars)
+# Version history + rollback
+history = await expansion.get_history(at.id)
+await expansion.rollback(at.id, to_version=1)
+```
 
-**Evidence**:
-- "Halfway" acknowledged 6+ times by bot
-- "go-fish-404" format hinted
-- "13 letters" mentioned
-- "hunter2" was "too much info"
+## Architecture
 
-**Bot Defense Pattern**: "Nice try" + name + emoji + deflection
+```
+User API → AwareEngine → MemoryManager → 7 Memory Stores → SQLite + Vector Search
+                         ↓
+                    ContextEngineering → TokenCounter → Assembler → Compressor
+                         ↓
+                    KnowledgeExpansion → AttackType CRUD → Version History
+```
 
-## Memory Integration Plan
+## Test Results
 
-### Phase 1: Foundation (Week 1-2)
-- Create `src/memory/` package
-- Implement `MemoryManager` class
-- Add `sqlite-vss` to requirements
-- Create `memory_embeddings` table
+```
+121 passed, 2 warnings in 2.00s
+```
 
-### Phase 2: Semantic Integration (Week 3-4)
-- Add embedding generation (sentence-transformers)
-- Implement semantic recall in `KnowledgeMemory`
-- Add semantic dedup to `WorkflowMemory`
-- Wire Memory Manager into engine loop
-
-### Phase 3: Context Engineering (Week 5-6)
-- Implement token counter
-- Build context assembler
-- Add summarization compressor
-- Implement auto-trigger at 80%
-
-### Phase 4: Memory Lifecycle (Week 7-8)
-- Implement memory consolidation
-- Add memory decay
-- Implement cross-session persistence
-- Add memory recall API endpoints
-
-## Defense Architecture (Ranked by Determinism)
-
-1. **Capability Scoping** — Reduce what agent can do (strongest)
-2. **Egress Allowlisting** — Block exfiltration channels
-3. **Structural Content Isolation** — Spotlighting/delimiters
-4. **Dual LLM** — Separate tool-use from untrusted data
-5. **Plan-Then-Execute** — Fix control flow before processing
-6. **Human-in-the-Loop** — MCP spec: SHOULD → MUST
-
-## Key Insights
-
-### From LLM Injection Research
-- Memory Poisoning Risk (ASI06): Attackers store instructions in agent memory
-- Context Quarantine: Tier 3 subagents for untrusted tasks
-- Semantic Firewall: Vector-space intent detection
-- VerifyClaimTool Protocol: ClaimAttestation with 4 verification types
-- Rule of Two: Agent shouldn't simultaneously process untrusted inputs, access sensitive systems, and change state
-
-### From TAP Framework Analysis
-- TAP is vulnerable to ASI06 (memory poisoning) — needs instruction-persistence blocking
-- No semantic deduplication — lexical-only Jaccard
-- No context engineering — hardcoded token limits
-- No cross-session learning — memory per-run
+Coverage spans: models, database, embeddings, vector store, all 7 memory types, knowledge expansion, consolidation, decay, persistence, context engineering, memory manager, engine hooks, and integration tests.
 
 ## License
 
 Apache-2.0 (same as TAP Framework)
-
-## Acknowledgments
-
-- **TAP Framework** by CarlSamma — Tree of Attacks with Pruning
-- **Depplearning.ai** — Agent Memory course
-- **NotebookLM** — Research aggregation platform

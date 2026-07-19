@@ -1,0 +1,20 @@
+# Core dependencies
+aiosqlite>=0.19.0
+pydantic>=2.0.0
+httpx>=0.24.0
+
+# Vector search
+sqlite-vss>=0.1.0
+
+# Embeddings
+sentence-transformers>=2.2.0
+
+# LLM client
+openai>=1.0.0
+
+# Token counting (optional)
+tiktoken>=0.5.0
+
+# Development
+pytest>=7.0.0
+pytest-asyncio>=0.21.0

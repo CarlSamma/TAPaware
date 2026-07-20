@@ -1,20 +1,12 @@
 """Tests for Context Engineering modules."""
 
-import sys
-from pathlib import Path
-
 import pytest
 
-# Ensure src is on path
-_src = str(Path(__file__).parent.parent / "src")
-if _src not in sys.path:
-    sys.path.insert(0, _src)
-
-from context.tokenizer import TokenCounter
-from context.assembler import ContextAssembler
-from context.compressor import ContextCompressor
-from context.monitor import ContextMonitor
-from memory.models import MemoryUnit
+from aware.context.assembler import ContextAssembler
+from aware.context.compressor import ContextCompressor
+from aware.context.monitor import ContextMonitor
+from aware.context.tokenizer import TokenCounter
+from aware.memory.models import MemoryUnit
 
 
 class TestTokenCounter:

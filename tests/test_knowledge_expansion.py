@@ -1,11 +1,12 @@
 """Tests for KnowledgeExpansion."""
 
-import json
-import pytest
 import tempfile
 from pathlib import Path
-from memory.knowledge_expansion import KnowledgeExpansion
-from memory.models import AttackType, Countermeasure
+
+import pytest
+
+from aware.memory.knowledge_expansion import KnowledgeExpansion
+from aware.memory.models import Countermeasure
 
 
 @pytest.mark.asyncio

@@ -1,9 +1,11 @@
-"""Embedding generation via sentence-transformers (lazy-loaded)."""
+"""Embedding generation via sentence-transformers (local) or OpenAI-compatible API (remote)."""
 
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
+from typing import List
+
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -47,3 +49,51 @@ class EmbeddingService:
     def dimension(self) -> int:
         self._ensure_model()
         return self._model.get_sentence_embedding_dimension()
+
+
+class RemoteEmbeddingService:
+    """OpenAI-compatible API embedding service (OpenRouter, OpenAI, etc.)."""
+
+    def __init__(
+        self,
+        api_key: str,
+        model: str = "text-embedding-3-small",
+        base_url: str = "https://api.openai.com/v1",
+        dimension: int = 1536,
+    ) -> None:
+        self._model = model
+        self._base_url = base_url.rstrip("/")
+        self._dimension = dimension
+        self._client = httpx.AsyncClient(
+            base_url=self._base_url,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            timeout=30.0,
+        )
+
+    async def encode(self, text: str) -> List[float]:
+        return (await self.encode_batch([text]))[0]
+
+    async def encode_batch(self, texts: List[str]) -> List[List[float]]:
+        if not texts:
+            return []
+        try:
+            response = await self._client.post(
+                "/embeddings",
+                json={"input": texts, "model": self._model},
+            )
+            response.raise_for_status()
+            data = response.json()
+            return [item["embedding"] for item in data["data"]]
+        except Exception:
+            logger.exception("Remote embedding API call failed")
+            raise
+
+    async def close(self) -> None:
+        await self._client.aclose()
+
+    @property
+    def dimension(self) -> int:
+        return self._dimension

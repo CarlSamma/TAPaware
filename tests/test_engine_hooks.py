@@ -1,22 +1,15 @@
 """Tests for AwareEngine."""
 
-import sys
-from pathlib import Path
+import hashlib
+from typing import List
 
 import pytest
 import pytest_asyncio
 
-_src = str(Path(__file__).parent.parent / "src")
-if _src not in sys.path:
-    sys.path.insert(0, _src)
-
-from api.engine_hooks import AwareEngine
-from memory.models import AttackType
-from memory.embeddings import EmbeddingService
-from config import AwareConfig
-
-import hashlib
-from typing import List
+from aware.api.engine_hooks import AwareEngine
+from aware.config import AwareConfig
+from aware.memory.embeddings import EmbeddingService
+from aware.memory.models import AttackType
 
 
 class MockEmbedder(EmbeddingService):
@@ -40,19 +33,17 @@ class MockEmbedder(EmbeddingService):
 async def engine():
     config = AwareConfig(db_path=":memory:")
     eng = AwareEngine(config)
-    # Inject mock embedder to avoid sentence-transformers dependency
     eng.memory.embedder = MockEmbedder()
-    eng.memory.vector_store = __import__('memory.vector_store', fromlist=['VectorStore']).VectorStore(
+    eng.memory.vector_store = __import__('aware.memory.vector_store', fromlist=['VectorStore']).VectorStore(
         eng.memory.db, eng.memory.embedder
     )
-    # Re-init stores with mock embedder
-    from memory.conversational import ConversationalMemory
-    from memory.knowledge import KnowledgeMemory
-    from memory.workflow import WorkflowMemory
-    from memory.toolbox import ToolboxMemory
-    from memory.entity import EntityMemory
-    from memory.summary import SummaryMemory
-    from memory.tool_log import ToolLogMemory
+    from aware.memory.conversational import ConversationalMemory
+    from aware.memory.entity import EntityMemory
+    from aware.memory.knowledge import KnowledgeMemory
+    from aware.memory.summary import SummaryMemory
+    from aware.memory.tool_log import ToolLogMemory
+    from aware.memory.toolbox import ToolboxMemory
+    from aware.memory.workflow import WorkflowMemory
 
     eng.memory.conversational = ConversationalMemory(eng.memory.db)
     eng.memory.knowledge = KnowledgeMemory(eng.memory.db, eng.memory.vector_store)
@@ -71,7 +62,7 @@ async def engine():
         "tool_log": eng.memory.tool_log,
     }
 
-    eng.expansion = __import__('memory.knowledge_expansion', fromlist=['KnowledgeExpansion']).KnowledgeExpansion(
+    eng.expansion = __import__('aware.memory.knowledge_expansion', fromlist=['KnowledgeExpansion']).KnowledgeExpansion(
         eng.memory.knowledge, eng.memory.db
     )
 
@@ -120,7 +111,7 @@ async def test_add_search_attack_type(engine):
         name="test_type", category="test",
         description="test attack type"
     )
-    added = await engine.add_attack_type(at)
+    await engine.add_attack_type(at)
     results = await engine.search_attack_types("test")
     assert len(results) >= 1
 

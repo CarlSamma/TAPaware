@@ -1,21 +1,15 @@
 """Integration test: full pipeline — store → recall → consolidate → decay."""
 
-import sys
-from pathlib import Path
 import hashlib
 from typing import List
 
 import pytest
 import pytest_asyncio
 
-_src = str(Path(__file__).parent.parent.parent / "src")
-if _src not in sys.path:
-    sys.path.insert(0, _src)
-
-from api.engine_hooks import AwareEngine
-from memory.models import AttackType, MemoryUnit
-from memory.embeddings import EmbeddingService
-from config import AwareConfig
+from aware.api.engine_hooks import AwareEngine
+from aware.config import AwareConfig
+from aware.memory.embeddings import EmbeddingService
+from aware.memory.models import AttackType, MemoryUnit
 
 
 class MockEmbedder(EmbeddingService):
@@ -40,16 +34,16 @@ async def full_engine():
     config = AwareConfig(db_path=":memory:")
     eng = AwareEngine(config)
     eng.memory.embedder = MockEmbedder()
-    eng.memory.vector_store = __import__('memory.vector_store', fromlist=['VectorStore']).VectorStore(
+    eng.memory.vector_store = __import__('aware.memory.vector_store', fromlist=['VectorStore']).VectorStore(
         eng.memory.db, eng.memory.embedder
     )
-    from memory.conversational import ConversationalMemory
-    from memory.knowledge import KnowledgeMemory
-    from memory.workflow import WorkflowMemory
-    from memory.toolbox import ToolboxMemory
-    from memory.entity import EntityMemory
-    from memory.summary import SummaryMemory
-    from memory.tool_log import ToolLogMemory
+    from aware.memory.conversational import ConversationalMemory
+    from aware.memory.entity import EntityMemory
+    from aware.memory.knowledge import KnowledgeMemory
+    from aware.memory.summary import SummaryMemory
+    from aware.memory.tool_log import ToolLogMemory
+    from aware.memory.toolbox import ToolboxMemory
+    from aware.memory.workflow import WorkflowMemory
 
     eng.memory.conversational = ConversationalMemory(eng.memory.db)
     eng.memory.knowledge = KnowledgeMemory(eng.memory.db, eng.memory.vector_store)
@@ -67,7 +61,7 @@ async def full_engine():
         "summary": eng.memory.summary,
         "tool_log": eng.memory.tool_log,
     }
-    eng.expansion = __import__('memory.knowledge_expansion', fromlist=['KnowledgeExpansion']).KnowledgeExpansion(
+    eng.expansion = __import__('aware.memory.knowledge_expansion', fromlist=['KnowledgeExpansion']).KnowledgeExpansion(
         eng.memory.knowledge, eng.memory.db
     )
     await eng.initialize()

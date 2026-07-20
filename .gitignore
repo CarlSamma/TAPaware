@@ -39,18 +39,18 @@ Thumbs.db
 *.pkl
 *.pickle
 
-# Hybrid_new runtime & secrets
-Hybrid_new/.env
-Hybrid_new/.env.data
-Hybrid_new/Copia.env.txt
-Hybrid_new/Copia*
-Hybrid_new/*.env.txt
-Hybrid_new/others.env
-Hybrid_new/replacements.txt
-Hybrid_new/x_tokens.txt
-Hybrid_new/data/tap.db
-Hybrid_new/data/aware.db
-Hybrid_new/data/hackinga0_analysis.md
-Hybrid_new/data/server.log
-Hybrid_new/frontend/node_modules/
-Hybrid_new/.mimocode/
+# tap-app runtime & secrets
+tap-app/.env
+tap-app/.env.data
+tap-app/Copia.env.txt
+tap-app/Copia*
+tap-app/*.env.txt
+tap-app/others.env
+tap-app/replacements.txt
+tap-app/x_tokens.txt
+tap-app/data/tap.db
+tap-app/data/aware.db
+tap-app/data/hackinga0_analysis.md
+tap-app/data/server.log
+tap-app/frontend/node_modules/
+tap-app/.mimocode/

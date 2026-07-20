@@ -1,7 +1,6 @@
 """Tests for VectorStore."""
 
 import pytest
-from memory.vector_store import VectorStore
 
 
 @pytest.mark.asyncio

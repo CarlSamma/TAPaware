@@ -1,8 +1,9 @@
 """Tests for MemoryDecay."""
 
 import pytest
-from memory.decay import MemoryDecay
-from memory.models import MemoryUnit
+
+from aware.memory.decay import MemoryDecay
+from aware.memory.models import MemoryUnit
 
 
 @pytest.mark.asyncio

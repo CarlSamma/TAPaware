@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import json
 import logging
-import shutil
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from .database import Database
-from .models import MemoryUnit, SessionRecord
+from .models import SessionRecord
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +103,7 @@ class MemoryPersistence:
         Path(backup_path).parent.mkdir(parents=True, exist_ok=True)
 
         # Use SQLite backup API
-        backup_conn = await self.db.conn.execute("VACUUM INTO ?", (backup_path,))
+        await self.db.conn.execute("VACUUM INTO ?", (backup_path,))
         logger.info("Database backed up to %s", backup_path)
         return backup_path
 

@@ -3,31 +3,24 @@
 from __future__ import annotations
 
 import hashlib
-import sys
-from pathlib import Path
 from typing import List
 
 import pytest
 import pytest_asyncio
 
-# Add src to path for imports
-_src_dir = str(Path(__file__).parent.parent / "src")
-if _src_dir not in sys.path:
-    sys.path.insert(0, _src_dir)
-
-from memory.database import Database
-from memory.embeddings import EmbeddingService
-from memory.vector_store import VectorStore
-from memory.knowledge import KnowledgeMemory
-from memory.conversational import ConversationalMemory
-from memory.workflow import WorkflowMemory
-from memory.toolbox import ToolboxMemory
-from memory.entity import EntityMemory
-from memory.summary import SummaryMemory
-from memory.tool_log import ToolLogMemory
-from memory.manager import MemoryManager
-from memory.models import MemoryUnit, AttackType, Countermeasure
-from config import AwareConfig
+from aware.config import AwareConfig
+from aware.memory.conversational import ConversationalMemory
+from aware.memory.database import Database
+from aware.memory.embeddings import EmbeddingService
+from aware.memory.entity import EntityMemory
+from aware.memory.knowledge import KnowledgeMemory
+from aware.memory.manager import MemoryManager
+from aware.memory.models import AttackType, Countermeasure, MemoryUnit
+from aware.memory.summary import SummaryMemory
+from aware.memory.tool_log import ToolLogMemory
+from aware.memory.toolbox import ToolboxMemory
+from aware.memory.vector_store import VectorStore
+from aware.memory.workflow import WorkflowMemory
 
 
 class MockEmbedder(EmbeddingService):
@@ -109,7 +102,6 @@ async def memory_manager():
     config = AwareConfig(db_path=":memory:")
     mm = MemoryManager(config)
     mm.embedder = MockEmbedder()
-    from memory.vector_store import VectorStore
     mm.vector_store = VectorStore(mm.db, mm.embedder)
     await mm.initialize()
     yield mm

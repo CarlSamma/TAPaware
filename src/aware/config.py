@@ -16,11 +16,23 @@ class AwareConfig(BaseSettings):
     db_path: str = Field(default="data/aware.db", description="SQLite database path")
 
     # ── Embeddings ────────────────────────────────────────────
+    embedding_provider: str = Field(
+        default="local",
+        description="'local' for sentence-transformers, 'remote' for API-based",
+    )
     embedding_model: str = Field(
         default="all-MiniLM-L6-v2",
-        description="sentence-transformers model name",
+        description="sentence-transformers model name or API model id",
     )
     embedding_dim: int = Field(default=384, description="Embedding vector dimension")
+    embedding_api_base: str = Field(
+        default="https://api.openai.com/v1",
+        description="Base URL for remote embedding API (OpenAI-compatible)",
+    )
+    embedding_api_key: Optional[str] = Field(
+        default=None,
+        description="API key for remote embedding provider. Falls back to llm_api_key.",
+    )
 
     # ── Vector Search ─────────────────────────────────────────
     vector_top_k: int = Field(default=20, description="Max ANN results")

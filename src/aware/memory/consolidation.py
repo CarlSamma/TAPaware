@@ -6,10 +6,10 @@ import json
 import logging
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from .database import Database
-from .models import ConsolidationLog, MemoryUnit
+from .models import MemoryUnit
 from .vector_store import VectorStore
 
 logger = logging.getLogger(__name__)

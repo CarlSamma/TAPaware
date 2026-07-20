@@ -9,19 +9,19 @@ from __future__ import annotations
 import logging
 from typing import List, Optional
 
-from aware_memory.models import (
+from aware.memory.models import (
     AttackType,
     MemoryUnit,
     ProbeContext,
     SessionEndResult,
 )
-from aware_memory.manager import MemoryManager
-from aware_memory.knowledge_expansion import KnowledgeExpansion
-from aware_memory.decay import MemoryDecay
-from aware_context.tokenizer import TokenCounter
-from aware_context.assembler import ContextAssembler
-from aware_context.compressor import ContextCompressor
-from aware_context.monitor import ContextMonitor
+from aware.memory.manager import MemoryManager
+from aware.memory.knowledge_expansion import KnowledgeExpansion
+from aware.memory.decay import MemoryDecay
+from aware.context.tokenizer import TokenCounter
+from aware.context.assembler import ContextAssembler
+from aware.context.compressor import ContextCompressor
+from aware.context.monitor import ContextMonitor
 
 logger = logging.getLogger("aware_bridge")
 

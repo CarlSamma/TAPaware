@@ -1,10 +1,10 @@
 """Tests for Pydantic models."""
 
-import pytest
-from datetime import datetime, timezone
-from memory.models import (
-    MemoryUnit, RecallResult, AttackType, Countermeasure,
-    AttackTypeHistory, SessionRecord, ConsolidationLog,
+from aware.memory.models import (
+    AttackType,
+    Countermeasure,
+    MemoryUnit,
+    RecallResult,
 )
 
 

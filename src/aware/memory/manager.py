@@ -2,20 +2,14 @@
 
 from __future__ import annotations
 
-import json
 import logging
 from typing import Any, Dict, List, Optional
 
-import sys
-from pathlib import Path
-_src = str(Path(__file__).parent.parent)
-if _src not in sys.path:
-    sys.path.insert(0, _src)
-from config import AwareConfig
-from .models import MemoryUnit, RecallResult
-from .database import Database
-from .embeddings import EmbeddingService
-from .vector_store import VectorStore
+from aware.config import AwareConfig
+from aware.memory.database import Database
+from aware.memory.embeddings import EmbeddingService
+from aware.memory.models import MemoryUnit, RecallResult
+from aware.memory.vector_store import VectorStore
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +22,10 @@ class MemoryManager:
     """
 
     def __init__(self, config: Optional[AwareConfig] = None) -> None:
-        self.config = config or AwareConfig()
+        if config is None or isinstance(config, str):
+            self.config = AwareConfig(db_path=config if isinstance(config, str) else "data/aware.db")
+        else:
+            self.config = config
         self.db = Database()
         self.embedder = EmbeddingService(self.config.embedding_model)
         self.vector_store = VectorStore(self.db, self.embedder)
@@ -47,12 +44,12 @@ class MemoryManager:
         await self.db.initialize(self.config.db_path)
 
         from .conversational import ConversationalMemory
-        from .knowledge import KnowledgeMemory
-        from .workflow import WorkflowMemory
-        from .toolbox import ToolboxMemory
         from .entity import EntityMemory
+        from .knowledge import KnowledgeMemory
         from .summary import SummaryMemory
         from .tool_log import ToolLogMemory
+        from .toolbox import ToolboxMemory
+        from .workflow import WorkflowMemory
 
         self.conversational = ConversationalMemory(self.db)
         self.knowledge = KnowledgeMemory(self.db, self.vector_store)

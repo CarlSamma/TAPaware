@@ -2,18 +2,11 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
-# Ensure src/ is on path
-_src = str(Path(__file__).parent.parent)
-if _src not in sys.path:
-    sys.path.insert(0, _src)
-
-from memory.models import AttackType, MemoryUnit
+from aware.memory.models import AttackType, MemoryUnit
 
 
 class ProbeRequest(BaseModel):

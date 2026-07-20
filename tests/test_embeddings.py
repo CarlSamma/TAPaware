@@ -1,7 +1,6 @@
 """Tests for EmbeddingService."""
 
 import pytest
-from tests.conftest import MockEmbedder
 
 
 @pytest.mark.asyncio

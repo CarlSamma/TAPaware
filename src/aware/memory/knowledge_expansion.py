@@ -10,9 +10,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from .database import Database
-from .embeddings import EmbeddingService
-from .models import AttackType, AttackTypeHistory, Countermeasure, MemoryUnit
 from .knowledge import KnowledgeMemory
+from .models import AttackType, AttackTypeHistory, Countermeasure, MemoryUnit
 
 logger = logging.getLogger(__name__)
 

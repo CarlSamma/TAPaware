@@ -1,7 +1,8 @@
 """Tests for ToolboxMemory."""
 
 import pytest
-from memory.models import MemoryUnit
+
+from aware.memory.models import MemoryUnit
 
 
 @pytest.mark.asyncio

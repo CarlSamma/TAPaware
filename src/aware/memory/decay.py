@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import json
 import logging
-import math
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List
 
 from .database import Database
 from .models import MemoryUnit
@@ -36,7 +35,7 @@ class MemoryDecay:
         now = datetime.now(timezone.utc).isoformat()
 
         # Update all units: confidence *= exp(-decay_rate * hours_since_last_access)
-        cursor = await self.db.execute(
+        await self.db.execute(
             """UPDATE memory_units
                SET confidence = MAX(0, confidence * exp(-decay_rate * (
                    (julianday(?) - julianday(COALESCE(last_accessed, timestamp))) * 24

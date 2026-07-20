@@ -1,11 +1,12 @@
 """Tests for MemoryPersistence."""
 
-import json
-import pytest
 import tempfile
 from pathlib import Path
-from memory.persistence import MemoryPersistence
-from memory.models import MemoryUnit
+
+import pytest
+
+from aware.memory.models import MemoryUnit
+from aware.memory.persistence import MemoryPersistence
 
 
 @pytest.mark.asyncio

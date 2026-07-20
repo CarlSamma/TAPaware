@@ -3,31 +3,20 @@
 from __future__ import annotations
 
 import logging
-import sys
-from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List, Optional
 
-# Ensure src/ is on path for absolute imports
-_src = str(Path(__file__).parent.parent)
-if _src not in sys.path:
-    sys.path.insert(0, _src)
-
-from config import AwareConfig
-from context.assembler import ContextAssembler
-from context.compressor import ContextCompressor
-from context.monitor import ContextMonitor, ContextStatus
-from context.tokenizer import TokenCounter
-from memory.database import Database
-from memory.decay import MemoryDecay
-from memory.knowledge_expansion import KnowledgeExpansion
-from memory.knowledge import KnowledgeMemory
-from memory.manager import MemoryManager
-from memory.models import (
+from aware.config import AwareConfig
+from aware.context.assembler import ContextAssembler
+from aware.context.compressor import ContextCompressor
+from aware.context.monitor import ContextMonitor
+from aware.context.tokenizer import TokenCounter
+from aware.memory.decay import MemoryDecay
+from aware.memory.knowledge_expansion import KnowledgeExpansion
+from aware.memory.manager import MemoryManager
+from aware.memory.models import (
     AttackType,
-    Countermeasure,
     MemoryUnit,
     ProbeContext,
-    ProbeRequest,
     SessionEndResult,
 )
 

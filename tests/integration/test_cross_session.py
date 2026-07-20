@@ -1,10 +1,11 @@
 """Integration test: cross-session persistence."""
 
 import pytest
-from memory.persistence import MemoryPersistence
-from memory.models import MemoryUnit
-from memory.manager import MemoryManager
-from config import AwareConfig
+
+from aware.config import AwareConfig
+from aware.memory.manager import MemoryManager
+from aware.memory.models import MemoryUnit
+from aware.memory.persistence import MemoryPersistence
 
 
 @pytest.mark.asyncio

@@ -1,8 +1,9 @@
 """Tests for MemoryConsolidation."""
 
 import pytest
-from memory.models import MemoryUnit
-from memory.consolidation import MemoryConsolidator
+
+from aware.memory.consolidation import MemoryConsolidator
+from aware.memory.models import MemoryUnit
 
 
 @pytest.mark.asyncio

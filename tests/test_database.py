@@ -59,7 +59,7 @@ async def test_countermeasures_table(db):
 
 @pytest.mark.asyncio
 async def test_in_memory_db():
-    from memory.database import Database
+    from aware.memory.database import Database
     db = Database()
     await db.initialize(":memory:")
     row = await db.fetchone("SELECT 1 as val")

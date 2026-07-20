@@ -1,0 +1,6 @@
+﻿{
+  "summary": [
+    "The provided sources detail the technical and administrative requirements for interacting with the **X (formerly Twitter) API**. Developers must register through a **Developer Portal** to obtain secure credentials and choose between various **authentication protocols**, such as OAuth or Bearer Tokens. Recent updates have shifted the platform to a **\"Pay-Per-Use\" pricing model**, replacing the previous free tier with a system of prepaid credits. Practical implementation is supported by tools like **Postman** and the **Tweepy** Python library, which allow for automated data extraction and account management. Additionally, third-party services like **Unipile** offer unified interfaces to integrate these social features into broader software applications. Educational tutorials further explain how to schedule tasks like **daily tweet collection** using scripts and system utilities."
+  ],
+  "suggested_topics": []
+}

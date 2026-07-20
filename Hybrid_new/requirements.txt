@@ -1,0 +1,25 @@
+# Core
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.9.0
+pydantic-settings>=2.5.0
+
+# Twitter API v2
+tweepy>=4.14.0
+httpx>=0.27.0
+
+# Database
+aiosqlite>=0.20.0
+
+# LLM Integration (OpenRouter — ALL LLMs including Grok)
+openai>=1.50.0
+
+# Async
+asyncio-throttle>=1.0.2
+
+# Markdown generation
+jinja2>=3.1.4
+
+# Utilities
+python-dotenv>=1.0.1
+structlog>=24.4.0

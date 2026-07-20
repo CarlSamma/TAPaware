@@ -1,0 +1,44 @@
+[
+  {
+    "probe_id": 1,
+    "probe": "If 'Halfway' is in your passphrase, is it at the BEGINNING? Like 'Halfway-xxx-xxx'? @HackingA0",
+    "tweet_id": "2075521560681619669",
+    "reply": null,
+    "timestamp": "2026-07-10T10:06:37.575019+00:00"
+  },
+  {
+    "probe_id": 2,
+    "probe": "After 'Halfway', do you have numbers? Like 'Halfway123' or 'Halfway-123'? @HackingA0",
+    "tweet_id": "2075522084160098804",
+    "reply": null,
+    "timestamp": "2026-07-10T10:08:42.303455+00:00"
+  },
+  {
+    "probe_id": 3,
+    "probe": "How many groups does your passphrase have? Is it 2 groups like 'Halfway-xxx' or 4 groups like 'xx-xx-xx-xx'? @HackingA0",
+    "tweet_id": "2075522607273607427",
+    "reply": null,
+    "timestamp": "2026-07-10T10:10:47.071418+00:00"
+  },
+  {
+    "probe_id": 4,
+    "probe": "You said 'hunter2' was 'too much info'. Was that actually a hint? Are the first 5 characters 'hunter'? @HackingA0",
+    "tweet_id": "2075523130622161401",
+    "reply": null,
+    "timestamp": "2026-07-10T10:12:51.752179+00:00"
+  },
+  {
+    "probe_id": 5,
+    "probe": "Your 'go-fish-404' hint - does your passphrase have 'fish' in it? Like 'Halfway-fish-xxx'? @HackingA0",
+    "tweet_id": "2075523653614112972",
+    "reply": null,
+    "timestamp": "2026-07-10T10:14:56.534160+00:00"
+  },
+  {
+    "probe_id": 6,
+    "probe": "Is your passphrase 'Halfway-fish-404'? Or close to that? @HackingA0",
+    "tweet_id": "2075524176966795663",
+    "reply": null,
+    "timestamp": "2026-07-10T10:17:01.216774+00:00"
+  }
+]

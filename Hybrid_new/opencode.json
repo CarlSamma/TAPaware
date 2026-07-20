@@ -1,0 +1,10 @@
+{
+   "notebooklm-mcp": {
+     "command": "uvx",
+     "args": [
+       "--from",
+       "notebooklm-mcp-cli",
+       "notebooklm-mcp"
+     ]
+   }
+ }

@@ -1,0 +1,6 @@
+﻿{
+  "summary": [
+    "The provided paper introduces **MultiBreak**, a comprehensive evaluation benchmark designed to test the safety of large language models during **multi-turn conversations**. While previous datasets focused on single-turn interactions, the authors argue that **sequential dialogues** more effectively mimic real-world interactions where users can gradually bypass safety filters. To build this resource, the researchers utilized an **active learning pipeline** that iteratively fine-tunes an attack generator and refines prompts based on model uncertainty. The resulting dataset contains over **7,000 adversarial prompts** spanning 26 fine-grained categories, including high-risk medical and technical advice. Testing revealed that while models often resist blatant harassment, they remain highly susceptible to **social manipulation** and subtle, harmful framing. Ultimately, **MultiBreak** provides a more rigorous and diverse tool for advancing safety research and identifying persistent vulnerabilities in modern AI systems."
+  ],
+  "suggested_topics": []
+}

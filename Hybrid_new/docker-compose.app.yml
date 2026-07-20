@@ -1,0 +1,141 @@
+# ============================================================================
+# Application stack per APP_Opzione_Ibrida (HYDRA + CHRONOS + TAP)
+# Branch: hybrid
+#
+# PRE-REQUISITO: docker compose -f docker-compose.infra.yml up -d
+# Avvio:         docker compose -f docker-compose.app.yml up -d --build
+# ============================================================================
+
+services:
+
+  # --------------------------------------------------------------------------
+  # HYDRA API — FastAPI (src/tap/api.py)
+  # http://localhost:8000  |  Docs: http://localhost:8000/docs
+  # --------------------------------------------------------------------------
+  hydra-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: hydra
+    container_name: tap-hydra-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./.env:/app/.env
+    environment:
+      SERVICE_NAME: hydra-api
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: tapv4hydra
+      POSTGRES_DSN: postgresql+asyncpg://tap:tap@postgres:5432/hydra
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      REDIS_URL: redis://redis:6379/0
+    networks:
+      - tap-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # --------------------------------------------------------------------------
+  # TAP ENGINE — core engine (src/tap/engine.py)
+  # --------------------------------------------------------------------------
+  tap-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: tap
+    container_name: tap-engine
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      OAUTHLIB_INSECURE_TRANSPORT: 1
+      SERVICE_NAME: tap-engine
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_GROUP_ID: tap-engine-group
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: tapv4hydra
+      POSTGRES_DSN: postgresql+asyncpg://tap:tap@postgres:5432/chronos
+      REDIS_URL: redis://redis:6379/2
+    networks:
+      - tap-net
+
+  # --------------------------------------------------------------------------
+  # ADAPTERS — stream listener X/Twitter (src/tap/stream_listener.py)
+  # --------------------------------------------------------------------------
+  adapters:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: adapters
+    container_name: tap-adapters
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: adapters
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      REDIS_URL: redis://redis:6379/3
+      POSTGRES_DSN: postgresql+asyncpg://tap:tap@postgres:5432/chronos
+    networks:
+      - tap-net
+
+  # --------------------------------------------------------------------------
+  # CHRONOS WORKER — Temporal worker (src/chronos/ - placeholder)
+  # --------------------------------------------------------------------------
+  chronos-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: chronos
+    container_name: tap-chronos-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      SERVICE_NAME: chronos-worker
+      TEMPORAL_HOST: temporal:7233
+      POSTGRES_DSN: postgresql+asyncpg://tap:tap@postgres:5432/chronos
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      REDIS_URL: redis://redis:6379/1
+    networks:
+      - tap-net
+
+  # --------------------------------------------------------------------------
+  # FRONTEND — React + TypeScript GUI (branch hybridGUI)
+  # http://localhost:3000
+  # --------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: dev
+    container_name: tap-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_TARGET=http://hydra-api:8000
+    depends_on:
+      - hydra-api
+    networks:
+      - tap-net
+
+# ------------------------------------------------------------------------------
+# Rete esterna — creata da docker-compose.infra.yml
+# Nome verificato con: docker network ls | Select-String "hybrid"
+# ------------------------------------------------------------------------------
+networks:
+  tap-net:
+    external: true
+    name: hybrid_default

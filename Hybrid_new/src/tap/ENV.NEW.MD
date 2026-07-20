@@ -1,0 +1,9 @@
+BEARER TOKEN: AAAAAAAAAAAAAAAAAAAAAG%2FO%2BAEAAAAA0AsMetj3LJcrenW%2Bw6OrjxqMfec%3DNAhTFL1TvAaEdFYJtH0QFhgLxnGLJagy38lUNhUUlVGIr9qdQc
+
+OAuth 1.0 Keys
+consumer key: CpuOsg3EWqi8dbu38NJS4MD2h
+consumer key secret: roWkx4wLExtKZldd4twWVeGdyYGY4gTfuYBvC31rwpUIPokqTv
+
+OAuth 2.0 Client SecretS
+client id: ZUpZbms4N2VPZnp6bG1LX1JzOG06MTpjaQ
+client secret: f3psWReZPiaVuMe5kmn0eb9KJfGybvWZEi4mH_pxn9E111LExo

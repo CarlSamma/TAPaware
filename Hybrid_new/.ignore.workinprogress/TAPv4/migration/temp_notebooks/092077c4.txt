@@ -1,0 +1,6 @@
+﻿{
+  "summary": [
+    "These sources primarily introduce **MARAGE**, a sophisticated adversarial attack designed to extract private data from **Retrieval-Augmented Generation (RAG)** systems. Unlike manual methods, this framework uses **continuous optimization** across multiple model architectures to create universal adversarial strings that force large language models to leak retrieved information verbatim. A key innovation is the **primacy weighting mechanism**, which prioritizes the initial tokens of a target sequence to ensure long-form data is successfully recovered. Evaluation results demonstrate that **MARAGE** remains effective even when faced with system prompt defenses and unseen models. Additionally, the provided technical documentation outlines a **TAP Sandbox Framework** for visualizing and implementing complex \"Tree of Attacks\" strategies via an API-driven dashboard. Together, the texts highlight evolving vulnerabilities in AI data privacy and the specialized tools developed to both exploit and study these weaknesses."
+  ],
+  "suggested_topics": []
+}

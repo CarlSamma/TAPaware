@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment & secrets
+.env
+Copia.env.txt
+*.env.txt
+Copia*
+*.pem
+*.key
+x_tokens.txt
+
+# Runtime data (auto-generated)
+data/tap.db
+data/tap.db-wal
+data/tap.db-shm
+data/aware.db
+data/aware.db-wal
+data/aware.db-shm
+data/hackinga0_analysis.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+htmlcov/
+.coverage
+.pytest_cache/
+
+# NotebookLM local state
+notebooks.json
+source-artifact-map.csv

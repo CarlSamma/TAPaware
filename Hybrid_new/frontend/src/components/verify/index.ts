@@ -1,0 +1,1 @@
+export { ClaimTypeDashboard } from './ClaimTypeDashboard';

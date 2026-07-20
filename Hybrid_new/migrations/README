@@ -1,0 +1,4 @@
+Generic alembic migrations for CHRONOS PostgreSQL schema.
+
+Run with:
+    alembic upgrade head

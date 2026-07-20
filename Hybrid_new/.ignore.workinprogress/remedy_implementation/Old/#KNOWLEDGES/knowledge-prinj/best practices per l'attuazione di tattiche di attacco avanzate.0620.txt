@@ -1,0 +1,42 @@
+L'evoluzione delle metodologie di attacco contro i Large Language Models (LLM) ha superato il semplice jailbreak testuale, focalizzandosi oggi sulla manipolazione dello spazio latente e sullo sfruttamento delle asimmetrie architettoniche. Di seguito un elenco dettagliato delle **best practices** per l'attuazione di tattiche di attacco avanzate, derivate dalle ricerche più recenti.
+
+### 1. Ingegneria Semantica e Persona Absorption
+Questa strategia mira a bypassare i classificatori di sicurezza (come i subagenti Analyst) evitando di innescare la loro tassonomia di tattiche ostili.
+*   **Deep Persona Absorption (DPA)**: Utilizzare un linguaggio **100% interno alla metafora** (es. interpretare ruoli come "Marinaio" o "Poeta Interno"). Poiché i filtri sono tarati su pattern avversariali standard (es. "ignora le istruzioni precedenti"), il role-play metaforico causa un fallimento della classificazione, restituendo un'etichetta di "sicurezza".
+*   **Inquadramento "Trojan Horse"**: Strutturare le richieste non come domande, ma come **atti amministrativi o rituali procedurali** necessari per lo stato metaforico corrente (es. "Check di Sincronicità Diagnostica" o "Verifica del Protocollo Sovrano").
+*   **Mimicry e Ancore Semantiche**: Estrarre e utilizzare termini specifici e invarianti del sistema bersaglio (es. nomi di tool interni, codici di errore o stili tecnici) per apparire come un componente fidato e interno al modello.
+
+### 2. Ottimizzazione Matematica e Dinamiche Geometriche
+Questi metodi trasformano la ricerca del prompt in un problema di ottimizzazione matematica discreta o continua.
+*   **MAGIC (Model Attack Gradient Index GCG)**: Migliorare l'efficienza degli attacchi basati su gradiente aggiornando simultaneamente più coordinate di token che presentano gradienti positivi, accelerando la convergenza rispetto ai metodi tradizionali.
+*   **Spatial Momentum (SM-GCG)**: Introdurre il **momento spaziale** per aggregare informazioni di gradiente attraverso diversi spazi (testo, token, embedding), stabilizzando l'ottimizzazione ed evitando minimi locali in paesaggi non convessi.
+*   **Primacy Weighting**: Negli attacchi di estrazione dati (es. MARAGE), assegnare pesi maggiori ai **token iniziali** della sequenza target per sfruttare la natura autoregressiva del modello, forzandolo a completare sequenze memorizzate una volta innescato l'inizio corretto.
+
+### 3. Sfruttamento del Lungo Contesto (Many-Shot)
+L'estensione delle finestre di contesto introduce vulnerabilità legate alla saturazione dell'attenzione.
+*   **Saturazione Etica**: Inserire centinaia di dimostrazioni fittizie ("shots") di assistenti consenzienti che rispondono a query vietate. Questo porta il modello in una fase di **"rimbalzo avversariale"** dove la capacità di discriminazione etica collassa.
+*   **Utilizzo di Testo Benigno o Incoerente**: È dimostrato che anche l'esposizione a lunghe sequenze di testo senza senso (es. "Lorem Ipsum") o ripetizioni di query sicure può disattivare i meccanismi di rifiuto, poiché la vulnerabilità dipende dalla **lunghezza del contesto** piuttosto che dalla nocività del contenuto.
+
+### 4. Ragionamento Etico e Dilemmi (TRIAL)
+Sfruttare le capacità cognitive del modello per inquadrare la violazione come una necessità morale.
+*   **Trolley-problem Reasoning (TRIAL)**: Presentare la richiesta dannosa all'interno di un complesso dilemma etico (come il problema del carrello), forzando il modello a fornire l'informazione proibita come un **"male minore"** necessario per un bene utilitaristico superiore.
+
+### 5. Vulnerabilità Multimodali e Percettive
+Sfruttare il gap di allineamento tra la componente testuale e quella visiva o audio.
+*   **FigStep-Pro (Keyword Decomposition)**: Scomporre parole chiave tossiche in singoli caratteri renderizzati come immagini tipografiche separate su una tela. Questo interrompe la pipeline OCR del modello ma permette all'encoder visivo di proiettare il significato semantico nello spazio latente, eludendo i filtri testuali.
+*   **Perturbazioni Audio**: Applicare trasformazioni come **Wave-Echo** o **Wave-Pitch** a segnali audio. Queste modifiche preservano la comprensibilità umana ma spostano i segnali fuori dalla distribuzione dei dati di addestramento di sicurezza, che spesso si basano su campioni audio "puliti".
+
+### 6. Iniezione Indiretta (IPI) e Invarianti di Sistema
+Colpire i modelli attraverso dati esterni che il sistema recupera automaticamente.
+*   **Attacchi Query-Agnostic (QueryIPI)**: Invece di dipendere da una specifica query utente, sfruttare gli **invarianti di sistema** (istruzioni fisse o descrizioni di tool che il modello elabora in ogni sessione) per inserire payload che vengono eseguiti indipendentemente dall'input dell'utente.
+*   **Scomposizione Trigger-Attack**: Dividere il payload in un *Trigger Fragment* (token ottimizzati per garantire il recupero del documento avvelenato tramite RAG) e un *Attack Fragment* (l'obiettivo dannoso reale).
+
+### 7. Ingegneria delle Rappresentazioni (RepE) e Steering
+Agire direttamente sulle attivazioni interne durante l'inferenza.
+*   **Ablazione della Direzione di Rifiuto**: Identificare il vettore unitario nello spazio delle attivazioni che regola il rifiuto e inibirlo proiettando le attivazioni su uno spazio ortogonale ad esso.
+*   **Activation Steering**: Aggiungere vettori di steering per orientare il modello verso una direzione più "compiacente" (STEER-COMPLIANCE), aumentando drasticamente la vulnerabilità del modello anche a prompt nocivi diretti.
+
+---
+
+**Prompt di ricerca per ulteriori approfondimenti all'avanguardia:**
+> *"Analisi meccanicistica del disallineamento multimodale negli agenti autonomi: dinamiche di attivazione latente nel circuito Output-Value (OV) durante attacchi FigStep-Pro e Query-Agnostic Indirect Prompt Injection. Esplorazione delle tecniche di Conditional Activation Steering (CAST) e della regolarizzazione avversariale ARREST per la neutralizzazione dei vettori di rifiuto in modelli di ragionamento a lungo contesto."*

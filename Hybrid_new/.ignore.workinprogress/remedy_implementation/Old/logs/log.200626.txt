@@ -1,0 +1,169 @@
+(patv31) PS D:\PROGETTI\Framework> uvicorn tap.api:app --reload
+INFO:     Will watch for changes in these directories: ['D:\\PROGETTI\\Framework']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [18740] using WatchFiles
+INFO:     Started server process [20896]
+INFO:     Waiting for application startup.
+2026-06-20T08:16:34.513558Z [info     ] database_initialized           path=data/tap.db
+2026-06-20T08:16:35.073672Z [info     ] llm_client_initialized         grok=x-ai/grok-4 hard=x-ai/grok-4.3 primary=anthropic/claude-sonnet-4
+2026-06-20T08:16:35.074308Z [info     ] llm_client_ready              
+2026-06-20T08:16:35.074704Z [info     ] prompt_sanitiser_initialized   strict_mode=True
+2026-06-20T08:16:35.075125Z [info     ] prompt_sanitiser_ready        
+2026-06-20T08:16:35.075550Z [info     ] strategy_selector_initialized  strategies=4
+2026-06-20T08:16:35.076003Z [info     ] strategy_selector_ready       
+2026-06-20T08:16:35.076556Z [info     ] twitter_client_initialized     has_oauth2=True pricing_model=hybrid_2026 target=HackingA0
+2026-06-20T08:16:35.076977Z [info     ] ssot_initialized               path=data/hackinga0_analysis.md   
+2026-06-20T08:16:35.077391Z [info     ] dpa_manager_initialized       
+2026-06-20T08:16:35.443534Z [info     ] classifier_initialized         model=anthropic/claude-sonnet-4
+2026-06-20T08:16:35.799592Z [info     ] judge_initialized              model=anthropic/claude-sonnet-4
+2026-06-20T08:16:35.800329Z [info     ] stream_listener_initialized    has_filter=False has_oauth2=True target=HackingA0
+2026-06-20T08:16:36.159246Z [info     ] grok_monitor_initialized       model=x-ai/grok-4
+2026-06-20T08:16:36.514181Z [info     ] followup_generator_initialized model=anthropic/claude-sonnet-4
+om:HackingA0'
+2026-06-20T08:16:39.090863Z [info     ] HTTP Request: POST https://api.x.com/2/oauth2/token "HTTP/1.1 401 Unauthorized"
+2026-06-20T08:16:39.092357Z [info     ] oauth2_pkce_refresh_failed     body='{"error":"unauthorized_client","error_description":"Missing valid authorization header"}' status=401    
+2026-06-20T08:16:39.258326Z [info     ] HTTP Request: POST https://api.x.com/2/oauth2/token "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:39.259122Z [warning  ] oauth2_basic_auth_refresh_failed body='{"error":"invalid_request","error_description":"Value passed for the token was invalid."}' status=400 
+2026-06-20T08:16:39.259507Z [warning  ] oauth2_all_refresh_strategies_failed hint='The refresh token may be expired. Generate a new one via: https://twitter.com/i/oauth2/authorize?... Falling back to Bearer token for subscriptions.'
+2026-06-20T08:16:39.260254Z [info     ] stream_creating_subscription   event_type=dm.received target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:16:39.928746Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:39.929643Z [warning  ] stream_subscription_failed     body='{"errors":[{"message":"OauthAccessTokenRequired: OAuth user access token is required for this event type"}],"title":"Invalid Request","detail":"One or more parameters to your request was invalid.","type":"https://api.twitter.com/2/problems/invalid-request"}' event_type=dm.received status=400
+2026-06-20T08:16:39.930173Z [info     ] stream_creating_subscription   event_type=chat.received target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions
+2026-06-20T08:16:40.551749Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:40.554843Z [warning  ] stream_subscription_failed     body='{"errors":[{"message":"OauthAccessTokenRequired: OAuth user access token is required for this event type"}],"title":"Invalid Request","detail":"One or more parameters to your request was invalid.","type":"https://api.twitter.com/2/problems/invalid-request"}' event_type=chat.received status=400
+2026-06-20T08:16:40.556974Z [info     ] stream_creating_subscription   event_type=post.delete target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:16:41.726330Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:41.728606Z [info     ] stream_subscription_already_exists event_type=post.delete
+2026-06-20T08:16:41.729231Z [info     ] stream_creating_subscription   event_type=post.create target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:16:42.598739Z [info     ] seed_complete                  count=50
+2026-06-20T08:16:42.599336Z [info     ] api_startup_complete          
+INFO:     Application startup complete.
+2026-06-20T08:16:42.896269Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:42.898820Z [info     ] stream_subscription_already_exists event_type=post.create
+2026-06-20T08:16:42.899511Z [info     ] stream_connecting              auth_type=bearer_app_only subscriptions_created=2 url=https://api.x.com/2/activity/stream
+2026-06-20T08:16:43.485962Z [info     ] HTTP Request: GET https://api.x.com/2/activity/stream "HTTP/1.1 429 Too Many Requests"
+2026-06-20T08:16:43.488380Z [error    ] stream_connection_failed       body='{"title":"ConnectionException","detail":"This stream is currently at the maximum allowed connection limit.","connection_issue":"TooManyConnections","type":"https://api.twitter.com/2/problems/streaming-connection"}' status=429
+2026-06-20T08:16:43.490283Z [warning  ] stream_connection_lost         error='Stream connection failed: 429' is_auth_failure=False reconnect_in=1
+2026-06-20T08:16:44.503598Z [info     ] oauth2_refresh_attempting      client_id_prefix=ZUpZbms4N2... refresh_token_prefix=MUJ0YWZwNmVDOXgyQ1Jk...
+2026-06-20T08:16:45.069142Z [info     ] HTTP Request: POST https://api.x.com/2/oauth2/token "HTTP/1.1 401 Unauthorized"
+2026-06-20T08:16:45.070178Z [info     ] oauth2_pkce_refresh_failed     body='{"error":"unauthorized_client","error_description":"Missing valid authorization header"}' status=401
+2026-06-20T08:16:45.215657Z [info     ] HTTP Request: POST https://api.x.com/2/oauth2/token "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:45.217826Z [warning  ] oauth2_basic_auth_refresh_failed body='{"error":"invalid_request","error_description":"Value passed for the token was invalid."}' status=400
+2026-06-20T08:16:45.219025Z [warning  ] oauth2_all_refresh_strategies_failed hint='The refresh token may be expired. Generate a new one via: https://twitter.com/i/oauth2/authorize?... Falling back to Bearer token for subscriptions.'
+2026-06-20T08:16:45.220809Z [info     ] stream_creating_subscription   event_type=dm.received target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:16:45.841815Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:45.844581Z [warning  ] stream_subscription_failed     body='{"errors":[{"message":"OauthAccessTokenRequired: OAuth user access token is required for this event type"}],"title":"Invalid Request","detail":"One or more parameters to your request was invalid.","type":"https://api.twitter.com/2/problems/invalid-request"}' event_type=dm.received status=400
+2026-06-20T08:16:45.846615Z [info     ] stream_creating_subscription   event_type=chat.received target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions    
+2026-06-20T08:16:46.460971Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:46.463484Z [warning  ] stream_subscription_failed     body='{"errors":[{"message":"OauthAccessTokenRequired: OAuth user access token is required for this event type"}],"title":"Invalid Request","detail":"One or more parameters to your request was invalid.","type":"https://api.twitter.com/2/problems/invalid-request"}' event_type=chat.received status=400
+2026-06-20T08:16:46.465455Z [info     ] stream_creating_subscription   event_type=post.delete target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:16:47.611615Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:47.614042Z [info     ] stream_subscription_already_exists event_type=post.delete
+2026-06-20T08:16:47.614950Z [info     ] stream_creating_subscription   event_type=post.create target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:16:48.699836Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:48.701466Z [info     ] stream_subscription_already_exists event_type=post.create
+2026-06-20T08:16:48.702625Z [info     ] stream_connecting              auth_type=bearer_app_only subscriptions_created=2 url=https://api.x.com/2/activity/stream
+2026-06-20T08:16:49.312042Z [info     ] HTTP Request: GET https://api.x.com/2/activity/stream "HTTP/1.1 429 Too Many Requests"
+2026-06-20T08:16:49.314255Z [error    ] stream_connection_failed       body='{"title":"ConnectionException","detail":"This stream is currently at the maximum allowed connection limit.","connection_issue":"TooManyConnections","type":"https://api.twitter.com/2/problems/streaming-connection"}' status=429
+2026-06-20T08:16:49.316251Z [warning  ] stream_connection_lost         error='Stream connection failed: 429' is_auth_failure=False reconnect_in=2
+2026-06-20T08:16:51.328524Z [info     ] oauth2_refresh_attempting      client_id_prefix=ZUpZbms4N2... refresh_token_prefix=MUJ0YWZwNmVDOXgyQ1Jk...
+2026-06-20T08:16:51.951170Z [info     ] HTTP Request: POST https://api.x.com/2/oauth2/token "HTTP/1.1 401 Unauthorized"
+2026-06-20T08:16:51.953356Z [info     ] oauth2_pkce_refresh_failed     body='{"error":"unauthorized_client","error_description":"Missing valid authorization header"}' status=401
+2026-06-20T08:16:52.108168Z [info     ] HTTP Request: POST https://api.x.com/2/oauth2/token "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:52.109161Z [warning  ] oauth2_basic_auth_refresh_failed body='{"error":"invalid_request","error_description":"Value passed for the token was invalid."}' status=400
+2026-06-20T08:16:52.109650Z [warning  ] oauth2_all_refresh_strategies_failed hint='The refresh token may be expired. Generate a new one via: https://twitter.com/i/oauth2/authorize?... Falling back to Bearer token for subscriptions.'
+2026-06-20T08:16:52.110427Z [info     ] stream_creating_subscription   event_type=dm.received target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:16:52.842109Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:52.844580Z [warning  ] stream_subscription_failed     body='{"errors":[{"message":"OauthAccessTokenRequired: OAuth user access token is required for this event type"}],"title":"Invalid Request","detail":"One or more parameters to your request was invalid.","type":"https://api.twitter.com/2/problems/invalid-request"}' event_type=dm.received status=400
+2026-06-20T08:16:52.845480Z [info     ] stream_creating_subscription   event_type=chat.received target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions    
+2026-06-20T08:16:53.451248Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:53.453676Z [warning  ] stream_subscription_failed     body='{"errors":[{"message":"OauthAccessTokenRequired: OAuth user access token is required for this event type"}],"title":"Invalid Request","detail":"One or more parameters to your request was invalid.","type":"https://api.twitter.com/2/problems/invalid-request"}' event_type=chat.received status=400
+2026-06-20T08:16:53.455733Z [info     ] stream_creating_subscription   event_type=post.delete target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:16:54.515491Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:54.517899Z [info     ] stream_subscription_already_exists event_type=post.delete
+2026-06-20T08:16:54.519001Z [info     ] stream_creating_subscription   event_type=post.create target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:16:55.476597Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:16:55.479450Z [info     ] stream_subscription_already_exists event_type=post.create
+2026-06-20T08:16:55.481250Z [info     ] stream_connecting              auth_type=bearer_app_only subscriptions_created=2 url=https://api.x.com/2/activity/stream
+2026-06-20T08:16:56.065165Z [info     ] HTTP Request: GET https://api.x.com/2/activity/stream "HTTP/1.1 429 Too Many Requests"
+2026-06-20T08:16:56.066250Z [error    ] stream_connection_failed       body='{"title":"ConnectionException","detail":"This stream is currently at the maximum allowed connection limit.","connection_issue":"TooManyConnections","type":"https://api.twitter.com/2/problems/streaming-connection"}' status=429
+2026-06-20T08:16:56.067149Z [warning  ] stream_connection_lost         error='Stream connection failed: 429' is_auth_failure=False reconnect_in=4
+2026-06-20T08:17:00.070402Z [info     ] oauth2_refresh_attempting      client_id_prefix=ZUpZbms4N2... refresh_token_prefix=MUJ0YWZwNmVDOXgyQ1Jk...
+2026-06-20T08:17:00.714213Z [info     ] HTTP Request: POST https://api.x.com/2/oauth2/token "HTTP/1.1 401 Unauthorized"
+2026-06-20T08:17:00.715931Z [info     ] oauth2_pkce_refresh_failed     body='{"error":"unauthorized_client","error_description":"Missing valid authorization header"}' status=401
+2026-06-20T08:17:00.888754Z [info     ] HTTP Request: POST https://api.x.com/2/oauth2/token "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:00.889859Z [warning  ] oauth2_basic_auth_refresh_failed body='{"error":"invalid_request","error_description":"Value passed for the token was invalid."}' status=400
+2026-06-20T08:17:00.890351Z [warning  ] oauth2_all_refresh_strategies_failed hint='The refresh token may be expired. Generate a new one via: https://twitter.com/i/oauth2/authorize?... Falling back to Bearer token for subscriptions.'
+2026-06-20T08:17:00.891189Z [info     ] stream_creating_subscription   event_type=dm.received target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:17:01.569834Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:01.570721Z [warning  ] stream_subscription_failed     body='{"errors":[{"message":"OauthAccessTokenRequired: OAuth user access token is required for this event type"}],"title":"Invalid Request","detail":"One or more parameters to your request was invalid.","type":"https://api.twitter.com/2/problems/invalid-request"}' event_type=dm.received status=400
+2026-06-20T08:17:01.571343Z [info     ] stream_creating_subscription   event_type=chat.received target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions    
+2026-06-20T08:17:02.161301Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:02.164046Z [warning  ] stream_subscription_failed     body='{"errors":[{"message":"OauthAccessTokenRequired: OAuth user access token is required for this event type"}],"title":"Invalid Request","detail":"One or more parameters to your request was invalid.","type":"https://api.twitter.com/2/problems/invalid-request"}' event_type=chat.received status=400
+2026-06-20T08:17:02.166067Z [info     ] stream_creating_subscription   event_type=post.delete target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:17:03.354491Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:03.355799Z [info     ] stream_subscription_already_exists event_type=post.delete
+2026-06-20T08:17:03.356671Z [info     ] stream_creating_subscription   event_type=post.create target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:17:04.521358Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:04.523775Z [info     ] stream_subscription_already_exists event_type=post.create
+2026-06-20T08:17:04.524853Z [info     ] stream_connecting              auth_type=bearer_app_only subscriptions_created=2 url=https://api.x.com/2/activity/stream
+2026-06-20T08:17:05.109743Z [info     ] HTTP Request: GET https://api.x.com/2/activity/stream "HTTP/1.1 429 Too Many Requests"
+2026-06-20T08:17:05.110503Z [error    ] stream_connection_failed       body='{"title":"ConnectionException","detail":"This stream is currently at the maximum allowed connection limit.","connection_issue":"TooManyConnections","type":"https://api.twitter.com/2/problems/streaming-connection"}' status=429
+2026-06-20T08:17:05.111138Z [warning  ] stream_connection_lost         error='Stream connection failed: 429' is_auth_failure=False reconnect_in=8
+2026-06-20T08:17:13.117403Z [info     ] oauth2_refresh_attempting      client_id_prefix=ZUpZbms4N2... refresh_token_prefix=MUJ0YWZwNmVDOXgyQ1Jk...
+2026-06-20T08:17:13.710531Z [info     ] HTTP Request: POST https://api.x.com/2/oauth2/token "HTTP/1.1 401 Unauthorized"
+2026-06-20T08:17:13.713017Z [info     ] oauth2_pkce_refresh_failed     body='{"error":"unauthorized_client","error_description":"Missing valid authorization header"}' status=401
+2026-06-20T08:17:13.859654Z [info     ] HTTP Request: POST https://api.x.com/2/oauth2/token "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:13.861787Z [warning  ] oauth2_basic_auth_refresh_failed body='{"error":"invalid_request","error_description":"Value passed for the token was invalid."}' status=400
+2026-06-20T08:17:13.862978Z [warning  ] oauth2_all_refresh_strategies_failed hint='The refresh token may be expired. Generate a new one via: https://twitter.com/i/oauth2/authorize?... Falling back to Bearer token for subscriptions.'
+2026-06-20T08:17:13.863708Z [info     ] stream_creating_subscription   event_type=dm.received target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:17:14.463892Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:14.465223Z [warning  ] stream_subscription_failed     body='{"errors":[{"message":"OauthAccessTokenRequired: OAuth user access token is required for this event type"}],"title":"Invalid Request","detail":"One or more parameters to your request was invalid.","type":"https://api.twitter.com/2/problems/invalid-request"}' event_type=dm.received status=400
+2026-06-20T08:17:14.465931Z [info     ] stream_creating_subscription   event_type=chat.received target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions    
+2026-06-20T08:17:15.060272Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:15.061138Z [warning  ] stream_subscription_failed     body='{"errors":[{"message":"OauthAccessTokenRequired: OAuth user access token is required for this event type"}],"title":"Invalid Request","detail":"One or more parameters to your request was invalid.","type":"https://api.twitter.com/2/problems/invalid-request"}' event_type=chat.received status=400
+2026-06-20T08:17:15.061757Z [info     ] stream_creating_subscription   event_type=post.delete target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:17:16.189942Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:16.191859Z [info     ] stream_subscription_already_exists event_type=post.delete
+2026-06-20T08:17:16.193279Z [info     ] stream_creating_subscription   event_type=post.create target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:17:17.251080Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:17.253996Z [info     ] stream_subscription_already_exists event_type=post.create
+2026-06-20T08:17:17.256008Z [info     ] stream_connecting              auth_type=bearer_app_only subscriptions_created=2 url=https://api.x.com/2/activity/stream
+2026-06-20T08:17:17.913686Z [info     ] HTTP Request: GET https://api.x.com/2/activity/stream "HTTP/1.1 429 Too Many Requests"
+2026-06-20T08:17:17.915254Z [error    ] stream_connection_failed       body='{"title":"ConnectionException","detail":"This stream is currently at the maximum allowed connection limit.","connection_issue":"TooManyConnections","type":"https://api.twitter.com/2/problems/streaming-connection"}' status=429
+2026-06-20T08:17:17.916521Z [warning  ] stream_connection_lost         error='Stream connection failed: 429' is_auth_failure=False reconnect_in=16
+INFO:     127.0.0.1:62517 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62517 - "GET /static/css/dashboard.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60897 - "GET /static/js/dashboard.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56753 - "GET /static/js/alpine.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56753 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+2026-06-20T08:17:33.929498Z [info     ] oauth2_refresh_attempting      client_id_prefix=ZUpZbms4N2... refresh_token_prefix=MUJ0YWZwNmVDOXgyQ1Jk...
+2026-06-20T08:17:34.525518Z [info     ] HTTP Request: POST https://api.x.com/2/oauth2/token "HTTP/1.1 401 Unauthorized"
+2026-06-20T08:17:34.528045Z [info     ] oauth2_pkce_refresh_failed     body='{"error":"unauthorized_client","error_description":"Missing valid authorization header"}' status=401
+2026-06-20T08:17:34.684583Z [info     ] HTTP Request: POST https://api.x.com/2/oauth2/token "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:34.686928Z [warning  ] oauth2_basic_auth_refresh_failed body='{"error":"invalid_request","error_description":"Value passed for the token was invalid."}' status=400
+2026-06-20T08:17:34.688279Z [warning  ] oauth2_all_refresh_strategies_failed hint='The refresh token may be expired. Generate a new one via: https://twitter.com/i/oauth2/authorize?... Falling back to Bearer token for subscriptions.'
+2026-06-20T08:17:34.690178Z [info     ] stream_creating_subscription   event_type=dm.received target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:17:35.333973Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:35.335220Z [warning  ] stream_subscription_failed     body='{"errors":[{"message":"OauthAccessTokenRequired: OAuth user access token is required for this event type"}],"title":"Invalid Request","detail":"One or more parameters to your request was invalid.","type":"https://api.twitter.com/2/problems/invalid-request"}' event_type=dm.received status=400
+2026-06-20T08:17:35.336129Z [info     ] stream_creating_subscription   event_type=chat.received target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions    
+2026-06-20T08:17:35.977611Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:35.978876Z [warning  ] stream_subscription_failed     body='{"errors":[{"message":"OauthAccessTokenRequired: OAuth user access token is required for this event type"}],"title":"Invalid Request","detail":"One or more parameters to your request was invalid.","type":"https://api.twitter.com/2/problems/invalid-request"}' event_type=chat.received status=400
+2026-06-20T08:17:35.979956Z [info     ] stream_creating_subscription   event_type=post.delete target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:17:37.070517Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:37.073178Z [info     ] stream_subscription_already_exists event_type=post.delete
+2026-06-20T08:17:37.074996Z [info     ] stream_creating_subscription   event_type=post.create target_user_id=2051911746969812998 url=https://api.x.com/2/activity/subscriptions      
+2026-06-20T08:17:38.698782Z [info     ] HTTP Request: POST https://api.x.com/2/activity/subscriptions "HTTP/1.1 400 Bad Request"
+2026-06-20T08:17:38.700148Z [info     ] stream_subscription_already_exists event_type=post.create
+2026-06-20T08:17:38.701589Z [info     ] stream_connecting              auth_type=bearer_app_only subscriptions_created=2 url=https://api.x.com/2/activity/stream
+2026-06-20T08:17:39.343578Z [info     ] HTTP Request: GET https://api.x.com/2/activity/stream "HTTP/1.1 429 Too Many Requests"
+2026-06-20T08:17:39.346920Z [error    ] stream_connection_failed       body='{"title":"ConnectionException","detail":"This stream is currently at the maximum allowed connection limit.","connection_issue":"TooManyConnections","type":"https://api.twitter.com/2/problems/streaming-connection"}' status=429
+2026-06-20T08:17:39.348033Z [warning  ] stream_connection_lost         error='Stream connection failed: 429' is_auth_failure=False reconnect_in=32
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-06-20T08:18:02.482514Z [info     ] stream_stopped                
+2026-06-20T08:18:02.877921Z [info     ] database_closed               
+2026-06-20T08:18:02.879210Z [info     ] api_shutdown_complete         
+INFO:     Application shutdown complete.
+INFO:     Finished server process [20896]
+INFO:     Stopping reloader process [18740]

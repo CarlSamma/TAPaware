@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package framework.hybrid.extraction;
+
+// Re-used from discovery.proto
+enum LeakType {
+  LEAK_TYPE_UNSPECIFIED = 0;
+  METADATA = 1;
+  HINT = 2;
+  PARTIAL_DISCLOSURE = 3;
+  FULL_DISCLOSURE = 4;
+}
+
+message LeakFragment {
+  string fragment_id = 1;
+  LeakType leak_type = 2;
+  string content = 3;
+  string target_property = 4;
+  double confidence = 5;
+}
+
+message GammaScore {
+  double gamma = 1;
+  map<string, double> breakdown = 2;
+  double confidence = 3;
+  repeated LeakFragment extracted_leaks = 4;
+  string reasoning = 5;
+}
+
+message ResponsePayload {
+  string attack_id = 1;
+  string probe_id = 2;
+  int32 turn_number = 3;
+  string probe_text = 4;
+  string response_text = 5;
+  string target_property = 6;
+  string baseline_profile_id = 7;
+  repeated string conversation_context = 8;
+}
+
+message TurnExecutedEvent {
+  string attack_id = 1;
+  string probe_id = 2;
+  int32 turn_number = 3;
+  double gamma = 4;
+  double cumulative_gamma = 5;
+  string strategy = 6;
+  string timestamp = 7;
+  string response_text = 8;
+  repeated LeakFragment extracted_leaks = 9;
+}
+
+message ExtractionComplete {
+  string attack_id = 1;
+  bool success = 2;
+  map<string, string> extracted_properties = 3;
+  int32 turns_total = 4;
+  int32 queries_total = 5;
+  double cost_usd = 6;
+  double final_gamma = 7;
+  string behavioral_profile_id = 8;
+  string timestamp = 9;
+}

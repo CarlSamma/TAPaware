@@ -1,0 +1,6 @@
+﻿{
+  "summary": [
+    "The provided sources detail the **TAP Framework**, an advanced system designed for **automated adversarial probing** to extract secrets from Large Language Models on social platforms. It utilizes an **information-theoretic approach**, employing binary search and **metaphoric framing** to bypass security guardrails by reducing the entropy of a target's secret key. The documentation outlines a shift toward a more sophisticated **hybrid architecture**, integrating the **HYDRA** frontend for vulnerability scanning and the **CHRONOS** backend for deep data extraction. These next-generation components introduce features like **partial compliance tracking**, multi-turn conversation compression, and **automated strategy selection** via a \"vulnerability genome.\" Ultimately, the sources provide a comprehensive technical roadmap for evolving **AI security stress testing** from simple jailbreak attempts into a scalable, engineering-driven science."
+  ],
+  "suggested_topics": []
+}

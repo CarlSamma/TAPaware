@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package framework.hybrid.alerts;
+
+message SystemAlert {
+  string alert_type = 1;
+  string severity = 2;
+  string message = 3;
+  string context = 4;
+  string timestamp = 5;
+}

@@ -1,0 +1,32 @@
+# HYDRA + CHRONOS + TAP extra dependencies
+# Installa con: pip install -r requirements-hybrid.txt
+
+# --- API server ---
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+httpx>=0.28.0
+
+# --- HYDRA ---
+neo4j>=5.26
+torch>=2.4.0
+grpcio>=1.68.0
+grpcio-tools>=1.68.0
+protobuf>=5.29
+
+# --- CHRONOS / infra ---
+temporalio>=1.9.0
+asyncpg>=0.30.0
+psycopg2-binary>=2.9
+alembic>=1.14.0
+kafka-python>=2.0.5
+redis>=5.2.0
+clickhouse-driver>=0.2.9
+
+# --- X/Twitter client ---
+tweepy>=4.14.0
+
+# --- Dev/test extras ---
+testcontainers>=4.8.0
+mypy-protobuf>=3.6
+pytest-postgresql>=6.1
+pytest-asyncio>=0.25

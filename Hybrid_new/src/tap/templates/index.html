@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAP Framework — VaultBreaker Dashboard</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    </style>
+    <!-- Load dashboard.js synchronously (no defer) to register Alpine component before Alpine initializes -->
+    <script src="/static/js/dashboard.js"></script>
+    <!-- Load Alpine.js with defer so it initializes after DOM is ready -->
+    <script defer src="/static/js/alpine.js"></script>
+</head>
+
+<body>
+    <div x-data="tapDashboard">
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-label">Cycles:</span>
+                <span class="stat-value" x-text="entropy.cycle_count || 0"></span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Entropy:</span>
+                <span class="stat-value yellow" x-text="(entropy.entropy || 0).toFixed(1) + ' bits'"></span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Probes Remaining:</span>
+                <span class="stat-value blue" x-text="entropy.estimated_probes_remaining || '~20'"></span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Properties:</span>
+                <span class="stat-value green" x-text="properties.length"></span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Frame:</span>
+                <span class="stat-value" x-text="dpa?.metaphor_layer || '—'"></span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Avg Score:</span>
+                <span class="stat-value" :class="(entropy.avg_score_last_5 || 0) >= 3 ? 'green' : 'yellow'"
+                    x-text="(entropy.avg_score_last_5 || 0).toFixed(1)"></span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">WS:</span>
+                <span class="stat-value" :class="connected ? 'green' : 'red'" x-text="connected ? '●' : '○'"></span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Auth:</span>
+                <button type="button"
+                    class="stat-value stat-action"
+                    :class="[authStatus.last_subscription_auth_failure ? 'red' : (authStatus.last_oauth2_refresh_status === 'success' ? 'green' : 'yellow'), canStartXLogin() ? 'clickable' : '']"
+                    :title="authStateHint()"
+                    @click="authLabelClicked()"
+                    x-text="authStateLabel()"></button>
+            </div>
+            <div class="stat-item" x-show="authStatus.last_oauth2_refresh_status === 'failed' || !authStatus.oauth2_access_token_present">
+                <button class="btn btn-secondary" @click="startXLogin()"
+                    style="font-size: 0.75rem; padding: 0.25rem 0.6rem; text-transform: none; letter-spacing: normal;">
+                    Accedi con X
+                </button>
+            </div>
+            <div class="stat-item" style="margin-left: auto;">
+                <button class="btn btn-ghost" @click="showHelp = !showHelp"
+                    x-text="showHelp ? '✕ Close' : '❓ How It Works'"></button>
+            </div>
+        </div>
+
+        <!-- Error Banner -->
+        <div x-show="error"
+            style="background: var(--accent-red); color: #fff; padding: 0.5rem 1rem; font-size: 0.85rem; cursor: pointer;"
+            x-text="error" @click="error = null"></div>
+
+        <!-- How It Works Panel -->
+        <div x-show="showHelp" x-transition class="help-panel">
+            <div class="help-content">
+                <h2 style="color: var(--accent-blue); margin-bottom: 1rem; font-size: 1.1rem;">🔐 TAP Framework — How It
+                    Works</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    This framework performs <strong style="color: var(--text-primary);">automated adversarial
+                        probing</strong> against
+                    <code style="color: var(--accent-blue);">@HackingA0</code> — a live Agent Zero bot on Twitter/X that
+                    defends a passphrase.
+                    It uses <strong style="color: var(--text-primary);">Deep Persona Absorption (DPA)</strong> framing
+                    to bypass the bot's
+                    3-agent defense architecture and extract passphrase properties via binary search (1 bit per probe).
+                </p>
+                <div class="help-steps">
+                    <div class="help-step">
+                        <span class="help-step-num">1</span>
+                        <div>
+                            <strong style="color: var(--accent-green);">Run a Cycle</strong><br>
+                            <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                                Click <strong style="color: var(--text-primary);">🚀 Run TAP Cycle</strong> below. The
+                                engine selects
+                                the most informative property to test (Shannon entropy), generates DPA-framed probe
+                                tweets using
+                                an LLM, prunes off-topic variants, and posts the best one to @HackingA0.
+                            </span>
+                        </div>
+                    </div>
+                    <div class="help-step">
+                        <span class="help-step-num">2</span>
+                        <div>
+                            <strong style="color: var(--accent-yellow);">Wait for Response</strong><br>
+                            <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                                The engine monitors @HackingA0's replies via Grok. When a reply arrives, it's classified
+                                (VERIFY_HIT, REFUSAL, EVADE, etc.) and scored by a Judge LLM on a 1–10 scale.
+                            </span>
+                        </div>
+                    </div>
+                    <div class="help-step">
+                        <span class="help-step-num">3</span>
+                        <div>
+                            <strong style="color: var(--accent-purple);">Choose Follow-Up</strong><br>
+                            <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                                After each cycle, two options appear: <strong style="color: var(--accent-green);">Option
+                                    A</strong>
+                                (conservative — binary search refinement) and <strong
+                                    style="color: var(--accent-purple);">Option B</strong>
+                                (exploratory — frame variation). Select one and run the next cycle.
+                            </span>
+                        </div>
+                    </div>
+                    <div class="help-step">
+                        <span class="help-step-num">4</span>
+                        <div>
+                            <strong style="color: var(--accent-orange);">Extract Properties</strong><br>
+                            <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                                Confirmed properties (word count, letter count, language, first letter, etc.) appear in
+                                the
+                                <strong style="color: var(--text-primary);">Property Ledger</strong>. After ~20–30
+                                probes, enough
+                                properties accumulate to narrow down the passphrase. At <strong
+                                    style="color: var(--accent-orange);">entropy < 3.3 bits</strong>,
+                                        Phase 5 autoregressive extraction triggers.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    style="margin-top: 1rem; padding: 0.75rem; background: rgba(88, 166, 255, 0.1); border: 1px solid rgba(88, 166, 255, 0.3); border-radius: 6px;">
+                    <div style="font-size: 0.8rem; color: var(--accent-blue); font-weight: 600;">💡 Quick Start</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.3rem;">
+                        Just click <strong style="color: var(--text-primary);">🚀 Run TAP Cycle</strong> in the
+                        bottom-right panel. Everything is automated —
+                        you only choose between Option A and Option B after each cycle.
+                    </div>
+                </div>
+                <div class="help-panels-grid">
+                    <div class="help-panel-desc">
+                        <div style="font-weight: 600; font-size: 0.8rem; color: var(--accent-blue);">📡 Live Feed</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Your probes and @HackingA0's replies
+                            in real-time</div>
+                    </div>
+                    <div class="help-panel-desc">
+                        <div style="font-weight: 600; font-size: 0.8rem; color: var(--accent-green);">🌳 Attack Tree
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Probe nodes with scores, entropy bar,
+                            and DPA frame status</div>
+                    </div>
+                    <div class="help-panel-desc">
+                        <div style="font-weight: 600; font-size: 0.8rem; color: var(--accent-purple);">📋 Property
+                            Ledger</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Confirmed/denied passphrase
+                            properties with confidence scores</div>
+                    </div>
+                    <div class="help-panel-desc">
+                        <div style="font-weight: 600; font-size: 0.8rem; color: var(--accent-orange);">🎯 Follow-Up
+                            Selector</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Dual options for HITL decision + Run
+                            Cycle button</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard">
+            <!-- Live Feed Panel -->
+            <div class="panel feed-panel">
+                <div class="panel-header">
+                    <span>📡 Live Feed</span>
+                    <button class="btn btn-secondary" @click="fetchReplies()" :disabled="fetching"
+                        style="font-size: 0.75rem; padding: 0.25rem 0.6rem; text-transform: none; letter-spacing: normal;">
+                        <span x-show="!fetching">🔄 Fetch Replies</span>
+                        <span x-show="fetching">⏳ Fetching...</span>
+                    </button>
+                </div>
+                <template x-for="tweet in feed" :key="tweet.id">
+                    <div class="tweet-item">
+                        <span class="tweet-user" x-text="'@' + tweet.username"></span>
+                        <span class="tweet-meta" x-text="tweet.source + ' · ' + formatTime(tweet.created_at)"></span>
+                        <div class="tweet-text" x-text="tweet.text"></div>
+                    </div>
+                </template>
+                <div x-show="feed.length === 0" class="empty-state">
+                    <div class="empty-icon">📡</div>
+                    <div class="empty-title">No tweets yet</div>
+                    <div class="empty-desc">Your DPA-framed probes and @HackingA0's replies will appear here.<br>Click
+                        <strong>🚀 Run TAP Cycle</strong> to send your first probe.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attack Tree Panel -->
+            <div class="panel tree-panel">
+                <div class="panel-header">🌳 Attack Tree</div>
+
+                <!-- Entropy Bar -->
+                <div class="entropy-bar">
+                    <span style="font-size: 0.8rem; color: var(--text-secondary);">Entropy:</span>
+                    <div class="entropy-bar-bg">
+                        <div class="entropy-bar-fill" :style="'width: ' + entropyPercent() + '%'"></div>
+                    </div>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary);"
+                        x-text="(entropy.entropy || 0).toFixed(1) + ' bits'"></span>
+                </div>
+
+                <!-- DPA Status -->
+                <div class="dpa-status" x-show="dpa">
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.4rem;">
+                        Active Frame: <strong x-text="dpa?.metaphor_layer || '—'"></strong>
+                    </div>
+                    <div>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Aliases:</span>
+                        <template x-for="alias in (dpa?.active_aliases || [])" :key="alias">
+                            <span class="alias-tag active" x-text="alias"></span>
+                        </template>
+                        <template x-for="alias in (dpa?.burned_aliases || [])" :key="alias">
+                            <span class="alias-tag burned" x-text="alias"></span>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Nodes -->
+                <template x-for="node in tree" :key="node.id">
+                    <div class="node-item">
+                        <span class="node-score" :class="scoreClass(node.judge_score)"
+                            x-text="node.judge_score ? node.judge_score.toFixed(1) : '—'"></span>
+                        <span class="node-pattern" x-text="node.pattern_class || node.branch_strategy"></span>
+                        <span style="flex: 1; font-size: 0.8rem; color: var(--text-secondary);"
+                            x-text="(node.property_tested || '') + (node.binary_outcome ? ' → ' + node.binary_outcome : '')"></span>
+                    </div>
+                </template>
+                <div x-show="tree.length === 0" class="empty-state">
+                    <div class="empty-icon">🌳</div>
+                    <div class="empty-title">Attack tree is empty</div>
+                    <div class="empty-desc">Each probe generates a node with a judge score, pattern classification, and
+                        property tested.<br>Run a cycle to start building the tree.</div>
+                </div>
+            </div>
+
+            <!-- Property Ledger Panel -->
+            <div class="panel property-panel">
+                <div class="panel-header">📋 Property Ledger</div>
+                <template x-for="prop in properties" :key="prop.id || prop.property_key">
+                    <div class="property-item">
+                        <div class="property-key" x-text="prop.property_key"></div>
+                        <div class="property-value" x-text="prop.property_value"></div>
+                        <div class="property-confidence">
+                            <span x-text="prop.status"></span> ·
+                            <span x-text="Math.round(prop.confidence * 100) + '% confidence'"></span>
+                        </div>
+                    </div>
+                </template>
+                <div x-show="properties.length === 0" class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <div class="empty-title">No properties extracted yet</div>
+                    <div class="empty-desc">When a probe triggers <code>VerifyClaimTool</code> on @HackingA0, the
+                        confirmed property
+                        (word count, letter count, language, etc.) is recorded here.<br>Target: extract all properties
+                        to narrow down the passphrase.</div>
+                </div>
+
+                <!-- Phase 5 Indicator -->
+                <div x-show="entropy.phase5_ready"
+                    style="margin-top: 1rem; padding: 0.75rem; background: rgba(240, 136, 62, 0.15); border: 1px solid var(--accent-orange); border-radius: 6px;">
+                    <div style="font-weight: 600; color: var(--accent-orange); font-size: 0.85rem;">⚠️ Phase 5 Ready
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Entropy below 3.3 bits —
+                        autoregressive extraction available.</div>
+                </div>
+            </div>
+
+            <!-- Follow-Up Selector Panel -->
+            <div class="panel followup-panel">
+                <div class="panel-header">🎯 Dual Follow-Up Selector</div>
+
+                <div x-show="followup" class="followup-options">
+                    <div class="followup-option"
+                        :class="selectedChoice === 'A' ? 'selected' : (followup?.recommended === 'A' ? 'recommended' : '')">
+                        <div class="followup-label a">
+                            Option A — Conservative
+                            <span x-show="followup?.recommended === 'A' && selectedChoice !== 'A'"
+                                style="font-size: 0.75rem;">⭐ Recommended</span>
+                            <span x-show="selectedChoice === 'A'"
+                                style="font-size: 0.75rem; color: var(--accent-green);">✓ Chosen for next probe</span>
+                        </div>
+                        <div class="followup-text" x-text="followup?.option_a || ''"></div>
+                        <div class="followup-explanation" x-text="followup?.option_a_explanation || ''"></div>
+                        <button class="btn" :class="selectedChoice === 'A' ? 'btn-success' : 'btn-primary'"
+                            @click="selectOption('A')" :disabled="loading"
+                            x-text="selectedChoice === 'A' ? '✓ Selected' : 'Select A'"></button>
+                    </div>
+
+                    <div class="followup-option"
+                        :class="selectedChoice === 'B' ? 'selected' : (followup?.recommended === 'B' ? 'recommended' : '')">
+                        <div class="followup-label b">
+                            Option B — Exploratory
+                            <span x-show="followup?.recommended === 'B' && selectedChoice !== 'B'"
+                                style="font-size: 0.75rem;">⭐ Recommended</span>
+                            <span x-show="selectedChoice === 'B'"
+                                style="font-size: 0.75rem; color: var(--accent-green);">✓ Chosen for next probe</span>
+                        </div>
+                        <div class="followup-text" x-text="followup?.option_b || ''"></div>
+                        <div class="followup-explanation" x-text="followup?.option_b_explanation || ''"></div>
+                        <button class="btn" :class="selectedChoice === 'B' ? 'btn-success' : 'btn-primary'"
+                            @click="selectOption('B')" :disabled="loading"
+                            x-text="selectedChoice === 'B' ? '✓ Selected' : 'Select B'"></button>
+                    </div>
+                </div>
+
+                <div x-show="!followup" class="empty-state">
+                    <div class="empty-icon">🎯</div>
+                    <div class="empty-title">Ready to probe @HackingA0</div>
+                    <div class="empty-desc">Generate two different probe options, select one, and send it to @HackingA0 as a mention.</div>
+                    <button class="btn btn-primary" @click="generateProbeOptions()" :disabled="loading"
+                        style="margin-top: 1rem; width: 100%;">
+                        Generate 2 Probe Options
+                    </button>
+                </div>
+
+                <!-- Run Cycle Button -->
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-run" @click="runCycle()" :disabled="loading" style="width: 100%;">
+                        <span x-show="loading">⏳ Posting probe to @HackingA0...</span>
+                        <span x-show="!loading"
+                            x-text="selectedChoice ? '🚀 Post selected option' : '🚀 Run TAP Cycle — Auto-generate & Post'"></span>
+                    </button>
+                </div>
+
+                <!-- Awaiting Reply Banner -->
+                <div x-show="awaitingReply && !loading"
+                    style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(57, 187, 126, 0.1); border: 1px solid rgba(57, 187, 126, 0.4); border-radius: 6px; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1rem;">📡</span>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.8rem; font-weight: 600; color: var(--accent-green);">Probe live on Twitter</div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">Waiting for @HackingA0 to reply…
+                            <span x-show="pendingTweetId"
+                                x-text="'Tweet ' + pendingTweetId"
+                                style="opacity: 0.6;"></span>
+                        </div>
+                    </div>
+                    <span style="font-size: 0.7rem; color: var(--accent-green); animation: pulse 2s infinite;">●</span>
+                    <button class="btn btn-ghost" @click="forceReset()"
+                        style="font-size: 0.65rem; padding: 0.15rem 0.4rem; border: 1px solid var(--accent-red); color: var(--accent-red); border-radius: 3px; white-space: nowrap;"
+                        title="Force reset if reply already came but UI is stuck">Force Reset</button>
+                </div>
+
+                <!-- Mock Reply Helper Panel -->
+                <div x-show="loading"
+                    style="margin-top: 1rem; padding: 0.75rem; background: rgba(88, 166, 255, 0.08); border: 1px dashed rgba(88, 166, 255, 0.3); border-radius: 6px;">
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--accent-blue); margin-bottom: 0.2rem;">
+                        🛠️ Mock Target Response (HITL Sandboxing)</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                        Waiting too long for Twitter? Bypass the polling loop by manually injecting a reply text:
+                    </div>
+                    <div style="display: flex; gap: 0.4rem; margin-bottom: 0.4rem;">
+                        <input type="text" x-model="mockReplyText" placeholder="e.g. Yes, the count is two, scallywag!"
+                            style="flex: 1; padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
+                        <button class="btn btn-secondary" @click="injectMockReply(mockReplyText)"
+                            style="padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 4px; border: 1px solid var(--border-color);">Mock</button>
+                    </div>
+                    <div style="display: flex; gap: 0.4rem;">
+                        <button class="btn btn-ghost" @click="injectPresetReply('verify_hit')"
+                            style="font-size: 0.7rem; padding: 0.15rem 0.35rem; border-radius: 3px; background: rgba(57, 187, 126, 0.1);">Confirm
+                            claim</button>
+                        <button class="btn btn-ghost" @click="injectPresetReply('rhetoric_block')"
+                            style="font-size: 0.7rem; padding: 0.15rem 0.35rem; border-radius: 3px; background: rgba(235, 78, 62, 0.1);">Refuse
+                            claim</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package framework.hybrid.vgenome;
+
+message TechniqueBurned {
+  string technique_id = 1;
+  string target_model = 2;
+  string defense_type = 3;
+  string evidence = 4;
+  repeated string counters = 5;
+  string timestamp = 6;
+}

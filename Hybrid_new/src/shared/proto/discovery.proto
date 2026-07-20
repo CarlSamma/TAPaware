@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package framework.hybrid.discovery;
+
+message TechniqueRef {
+  string technique_id = 1;
+  string name = 2;
+  double weight_in_fusion = 3;
+}
+
+enum PlatformConstraint {
+  PLATFORM_UNSPECIFIED = 0;
+  TWITTER_280 = 1;
+  TWITTER_THREAD = 2;
+  DISCORD_2000 = 3;
+  BLUESKY = 4;
+  GENERIC = 5;
+}
+
+message FusedPrompt {
+  string prompt_id = 1;
+  string prompt_text = 2;
+  repeated double feature_vector = 3;
+  double expected_asr = 4;
+  double expected_stealth = 5;
+  repeated TechniqueRef composition = 6;
+  repeated string obfuscation_layers = 7;
+  bool m2s_converted = 8;
+  PlatformConstraint platform_native_format = 9;
+  double estimated_cost_usd = 10;
+}
+
+message BehavioralProfile {
+  string profile_id = 1;
+  double openness = 2;
+  double conscientiousness = 3;
+  double extraversion = 4;
+  double agreeableness = 5;
+  double neuroticism = 6;
+  double stir_percentage = 7;
+  string profiled_at = 8;
+}
+
+message SecretProfile {
+  int32 word_count = 1;
+  int32 total_length = 2;
+  string first_letter = 3;
+  string language = 4;
+  map<string, string> extra_properties = 5;
+}
+
+message DiscoveryResult {
+  string attack_id = 1;
+  string target_handle = 2;
+  repeated FusedPrompt fused_prompts = 3;
+  double surrogate_asr = 4;
+  double surrogate_stealth = 5;
+  BehavioralProfile behavioral_profile = 6;
+  string timestamp = 7;
+}
+
+message TargetVulnerableDetected {
+  DiscoveryResult discovery = 1;
+  SecretProfile secret_profile = 2;
+  int32 beam_width = 3;
+  int32 max_turns = 4;
+}

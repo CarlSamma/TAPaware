@@ -15,11 +15,11 @@ services:
       POSTGRES_USER: tap
       POSTGRES_PASSWORD: tap
       POSTGRES_DB: chronos
-      POSTGRES_MULTIPLE_DATABASES: hydra
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U tap -d chronos"]
       interval: 5s
@@ -61,6 +61,11 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc localhost 2181 | grep imok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka:
     image: confluentinc/cp-kafka:7.7.0
@@ -141,7 +146,8 @@ services:
     image: temporalio/auto-setup:1.25
     container_name: tap-temporal
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       DB: postgres12
       DB_PORT: 5432
@@ -214,3 +220,7 @@ volumes:
   temporal_data:
   minio_data:
   clickhouse_data:
+
+networks:
+  default:
+    name: tap-net

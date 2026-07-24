@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 from typing import List, Optional
 
 from .tokenizer import TokenCounter
+
+logger = logging.getLogger(__name__)
 
 
 class ContextCompressor:
@@ -117,5 +120,5 @@ class ContextCompressor:
                 )
                 return response.choices[0].message.content
         except Exception:
-            pass
+            logger.warning("LLM summarization failed, falling back to truncation", exc_info=True)
         return None

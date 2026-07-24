@@ -21,7 +21,7 @@ class MemoryManager:
     hiding the complexity of raw SQL or vector queries.
     """
 
-    def __init__(self, config: Optional[AwareConfig] = None) -> None:
+    def __init__(self, config: Optional[AwareConfig | str] = None) -> None:
         if config is None or isinstance(config, str):
             self.config = AwareConfig(db_path=config if isinstance(config, str) else "data/aware.db")
         else:

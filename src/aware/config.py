@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import Field
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -29,7 +29,7 @@ class AwareConfig(BaseSettings):
         default="https://api.openai.com/v1",
         description="Base URL for remote embedding API (OpenAI-compatible)",
     )
-    embedding_api_key: Optional[str] = Field(
+    embedding_api_key: Optional[SecretStr] = Field(
         default=None,
         description="API key for remote embedding provider. Falls back to llm_api_key.",
     )
@@ -55,6 +55,16 @@ class AwareConfig(BaseSettings):
 
     # ── LLM ───────────────────────────────────────────────────
     llm_model: str = Field(default="gpt-4o-mini", description="LLM model for summarization")
-    llm_api_key: Optional[str] = Field(default=None, description="OpenAI API key")
+    llm_api_key: Optional[SecretStr] = Field(default=None, description="OpenAI API key")
+    llm_api_base: Optional[str] = Field(
+        default=None,
+        description="LLM API base URL (for proxies, Azure, local models)",
+    )
+
+    @model_validator(mode="after")
+    def _fallback_embedding_key(self) -> "AwareConfig":
+        if self.embedding_api_key is None and self.llm_api_key is not None:
+            self.embedding_api_key = self.llm_api_key
+        return self
 
     model_config = {"env_prefix": "AWARE_", "env_file": ".env", "extra": "ignore"}

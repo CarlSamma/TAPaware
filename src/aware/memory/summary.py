@@ -55,14 +55,14 @@ class SummaryMemory:
                ORDER BY timestamp DESC LIMIT ?""",
             (f"%{query}%", f"%{query}%", limit),
         )
-        return [(self._row_to_unit(r), 0.7) for r in rows]
+        return [(MemoryUnit.from_row(r), 0.7) for r in rows]
 
     async def get(self, memory_id: str) -> Optional[MemoryUnit]:
         row = await self.db.fetchone(
             "SELECT * FROM memory_units WHERE id = ? AND type = 'summary'",
             (memory_id,),
         )
-        return self._row_to_unit(row) if row else None
+        return MemoryUnit.from_row(row) if row else None
 
     async def delete(self, memory_id: str) -> bool:
         cursor = await self.db.execute(
@@ -100,23 +100,4 @@ class SummaryMemory:
             return text[:997] + "..."
         return text
 
-    # ── Helpers ───────────────────────────────────────────────
 
-    @staticmethod
-    def _row_to_unit(row) -> MemoryUnit:
-        return MemoryUnit(
-            id=row["id"],
-            type=row["type"],
-            content=row["content"],
-            metadata=json.loads(row["metadata"] or "{}"),
-            timestamp=datetime.fromisoformat(row["timestamp"]),
-            confidence=row["confidence"],
-            decay_rate=row["decay_rate"],
-            last_accessed=(
-                datetime.fromisoformat(row["last_accessed"])
-                if row["last_accessed"]
-                else None
-            ),
-            access_count=row["access_count"],
-            session_id=row["session_id"],
-        )

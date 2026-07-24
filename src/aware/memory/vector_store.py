@@ -56,7 +56,8 @@ class VectorStore:
                 self._vss_available = "rowid" in col_names or "embedding" not in col_names
             else:
                 self._vss_available = False
-        except Exception:
+        except (ImportError, Exception) as exc:
+            logger.debug("VSS detection failed (%s), using brute-force fallback", exc)
             self._vss_available = False
         return self._vss_available
 

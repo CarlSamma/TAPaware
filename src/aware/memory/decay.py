@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import logging
 from datetime import datetime, timezone
 from typing import List
@@ -81,7 +80,7 @@ class MemoryDecay:
                ORDER BY confidence ASC LIMIT ?""",
             (threshold, limit),
         )
-        return [self._row_to_unit(r) for r in rows]
+        return [MemoryUnit.from_row(r) for r in rows]
 
     async def purge(self, below_threshold: float = 0.05) -> int:
         """Hard-delete units below threshold. Returns count deleted."""
@@ -114,21 +113,4 @@ class MemoryDecay:
             "low_confidence": low["cnt"] if low else 0,
         }
 
-    # ── Helpers ───────────────────────────────────────────────
 
-    @staticmethod
-    def _row_to_unit(row) -> MemoryUnit:
-        return MemoryUnit(
-            id=row["id"],
-            type=row["type"],
-            content=row["content"],
-            metadata=json.loads(row["metadata"] or "{}"),
-            timestamp=datetime.fromisoformat(row["timestamp"]),
-            confidence=row["confidence"],
-            decay_rate=row["decay_rate"],
-            last_accessed=(
-                datetime.fromisoformat(row["last_accessed"]) if row["last_accessed"] else None
-            ),
-            access_count=row["access_count"],
-            session_id=row["session_id"],
-        )

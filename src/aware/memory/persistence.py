@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from datetime import datetime, timezone
@@ -134,13 +135,20 @@ class MemoryPersistence:
         }
 
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(export, f, indent=2, default=str)
+
+        def _write_export():
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(export, f, indent=2, default=str)
+
+        await asyncio.to_thread(_write_export)
 
     async def import_session_memories(self, path: str) -> str:
         """Import memories from JSON into a new session. Returns session_id."""
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        def _read():
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+
+        data = await asyncio.to_thread(_read)
 
         session_id = data.get("session_id", str(datetime.now(timezone.utc).timestamp()))
 

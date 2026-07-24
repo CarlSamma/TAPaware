@@ -180,23 +180,27 @@ class AwareEngine:
     # ── Knowledge Expansion (delegates) ───────────────────────
 
     async def add_attack_type(self, attack_type: AttackType) -> AttackType:
-        assert self.expansion is not None
+        if self.expansion is None:
+            raise RuntimeError("AwareEngine not initialized — call initialize() first")
         return await self.expansion.add_attack_type(attack_type)
 
     async def search_attack_types(
         self, query: str, limit: int = 10
     ) -> List[tuple]:
-        assert self.expansion is not None
+        if self.expansion is None:
+            raise RuntimeError("AwareEngine not initialized — call initialize() first")
         return await self.expansion.search_attack_types(query, limit=limit)
 
     async def import_attack_knowledge(self, path: str) -> int:
-        assert self.expansion is not None
+        if self.expansion is None:
+            raise RuntimeError("AwareEngine not initialized — call initialize() first")
         if path.endswith(".yaml") or path.endswith(".yml"):
             return await self.expansion.import_from_yaml(path)
         return await self.expansion.import_from_json(path)
 
     async def export_attack_knowledge(self, path: str) -> None:
-        assert self.expansion is not None
+        if self.expansion is None:
+            raise RuntimeError("AwareEngine not initialized — call initialize() first")
         if path.endswith(".yaml") or path.endswith(".yml"):
             await self.expansion.export_to_yaml(path)
         else:

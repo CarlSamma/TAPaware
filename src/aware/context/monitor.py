@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
-from typing import Callable, List
+from typing import Callable, List, Optional
+
+from pydantic import BaseModel
 
 from .tokenizer import TokenCounter
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class ContextStatus:
+class ContextStatus(BaseModel):
     """Current context window status."""
 
     current_tokens: int
@@ -74,7 +74,7 @@ class ContextMonitor:
 
         return status
 
-    def get_usage_percentage(self, messages: List[dict] = None) -> float:
+    def get_usage_percentage(self, messages: Optional[List[dict]] = None) -> float:
         """Get current usage as percentage."""
         if messages:
             current = self.tokenizer.count(messages)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import List
 
@@ -34,7 +35,7 @@ class EmbeddingService:
     async def encode(self, text: str) -> List[float]:
         """Encode a single text into a normalized embedding vector."""
         self._ensure_model()
-        vec = self._model.encode(text, normalize_embeddings=True)
+        vec = await asyncio.to_thread(self._model.encode, text, normalize_embeddings=True)
         return vec.tolist()
 
     async def encode_batch(self, texts: List[str]) -> List[List[float]]:
@@ -42,7 +43,7 @@ class EmbeddingService:
         if not texts:
             return []
         self._ensure_model()
-        vecs = self._model.encode(texts, normalize_embeddings=True)
+        vecs = await asyncio.to_thread(self._model.encode, texts, normalize_embeddings=True)
         return vecs.tolist()
 
     @property

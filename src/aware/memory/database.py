@@ -166,23 +166,28 @@ class Database:
     # ── Convenience ───────────────────────────────────────────
 
     async def execute(self, sql: str, params: tuple = ()) -> aiosqlite.Cursor:
-        assert self.conn is not None, "Database not initialized"
+        if self.conn is None:
+            raise RuntimeError("Database not initialized — call initialize() first")
         return await self.conn.execute(sql, params)
 
     async def executemany(self, sql: str, params_list) -> None:
-        assert self.conn is not None, "Database not initialized"
+        if self.conn is None:
+            raise RuntimeError("Database not initialized — call initialize() first")
         await self.conn.executemany(sql, params_list)
 
     async def fetchone(self, sql: str, params: tuple = ()):
-        assert self.conn is not None, "Database not initialized"
+        if self.conn is None:
+            raise RuntimeError("Database not initialized — call initialize() first")
         cursor = await self.conn.execute(sql, params)
         return await cursor.fetchone()
 
     async def fetchall(self, sql: str, params: tuple = ()):
-        assert self.conn is not None, "Database not initialized"
+        if self.conn is None:
+            raise RuntimeError("Database not initialized — call initialize() first")
         cursor = await self.conn.execute(sql, params)
         return await cursor.fetchall()
 
     async def commit(self) -> None:
-        assert self.conn is not None, "Database not initialized"
+        if self.conn is None:
+            raise RuntimeError("Database not initialized — call initialize() first")
         await self.conn.commit()

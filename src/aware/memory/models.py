@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -43,6 +44,24 @@ class MemoryUnit(BaseModel):
             if isinstance(v, datetime):
                 d[k] = v.isoformat()
         return d
+
+    @classmethod
+    def from_row(cls, row) -> "MemoryUnit":
+        """Reconstruct a MemoryUnit from an aiosqlite Row."""
+        return cls(
+            id=row["id"],
+            type=row["type"],
+            content=row["content"],
+            metadata=json.loads(row["metadata"] or "{}"),
+            timestamp=datetime.fromisoformat(row["timestamp"]),
+            confidence=row["confidence"],
+            decay_rate=row["decay_rate"],
+            last_accessed=(
+                datetime.fromisoformat(row["last_accessed"]) if row["last_accessed"] else None
+            ),
+            access_count=row["access_count"],
+            session_id=row["session_id"],
+        )
 
 
 class RecallResult(BaseModel):

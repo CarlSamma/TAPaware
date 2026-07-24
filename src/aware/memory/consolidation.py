@@ -10,7 +10,7 @@ from typing import Dict, List
 
 from .database import Database
 from .models import MemoryUnit
-from .vector_store import VectorStore
+from .vector_store import VectorStore, _cosine_similarity
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class MemoryConsolidator:
         if not rows:
             return {"promoted": 0, "skipped": 0}
 
-        units = [self._row_to_unit(r) for r in rows]
+        units = [MemoryUnit.from_row(r) for r in rows]
 
         # Cluster by vector similarity
         clusters = await self._cluster_units(units)
@@ -124,7 +124,7 @@ class MemoryConsolidator:
         if len(rows) < min_occurrences:
             return 0
 
-        units = [self._row_to_unit(r) for r in rows]
+        units = [MemoryUnit.from_row(r) for r in rows]
 
         # Cluster by vector similarity
         clusters = await self._cluster_units(units)
@@ -194,6 +194,7 @@ class MemoryConsolidator:
         try:
             embeddings = await self.vector_store.embedder.encode_batch(texts)
         except Exception:
+            logger.warning("Embedding batch failed, falling back to no-clustering", exc_info=True)
             return [[u] for u in units]
 
         for i, emb in enumerate(embeddings):
@@ -212,7 +213,7 @@ class MemoryConsolidator:
             for j in range(i + 1, len(units)):
                 if assigned[j]:
                     continue
-                sim = _cosine(units[i].embedding, units[j].embedding)
+                sim = _cosine_similarity(units[i].embedding, units[j].embedding)
                 if sim >= threshold:
                     cluster.append(units[j])
                     assigned[j] = True
@@ -227,29 +228,3 @@ class MemoryConsolidator:
             return cluster[0].content
         contents = [u.content for u in cluster[:5]]  # max 5
         return f"[Consolidated from {len(cluster)} episodes] " + " | ".join(contents)
-
-    @staticmethod
-    def _row_to_unit(row) -> MemoryUnit:
-        return MemoryUnit(
-            id=row["id"],
-            type=row["type"],
-            content=row["content"],
-            metadata=json.loads(row["metadata"] or "{}"),
-            timestamp=datetime.fromisoformat(row["timestamp"]),
-            confidence=row["confidence"],
-            decay_rate=row["decay_rate"],
-            last_accessed=(
-                datetime.fromisoformat(row["last_accessed"]) if row["last_accessed"] else None
-            ),
-            access_count=row["access_count"],
-            session_id=row["session_id"],
-        )
-
-
-def _cosine(a: List[float], b: List[float]) -> float:
-    if len(a) != len(b) or not a:
-        return 0.0
-    dot = sum(x * y for x, y in zip(a, b))
-    na = sum(x * x for x in a) ** 0.5
-    nb = sum(x * x for x in b) ** 0.5
-    return dot / (na * nb) if na and nb else 0.0

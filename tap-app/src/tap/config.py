@@ -4,12 +4,15 @@ Single source of truth for all configuration. Loads from .env file.
 Use get_settings() for a cached singleton instance.
 """
 
+import logging
 from functools import lru_cache
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
 import os
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -280,6 +283,5 @@ def save_env_vars(overrides: dict[str, str], env_file: str | None = None) -> Non
         p.write_text("\n".join(out_lines) + "\n", encoding="utf-8")
         # Invalidate cached singleton so next get_settings() re-reads from .env
         get_settings.cache_clear()
-    except Exception:
-        # Best-effort persistence: do not raise from config helper
-        return
+    except Exception as e:
+        logger.warning("Failed to persist env vars: %s", e)

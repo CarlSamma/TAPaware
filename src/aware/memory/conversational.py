@@ -57,7 +57,7 @@ class ConversationalMemory:
         )
         results: List[Tuple[MemoryUnit, float]] = []
         for row in rows:
-            unit = self._row_to_unit(row)
+            unit = MemoryUnit.from_row(row)
             # Keyword match → fixed score of 0.7 (decent but not vector-quality)
             results.append((unit, 0.7))
         return results
@@ -67,7 +67,7 @@ class ConversationalMemory:
             "SELECT * FROM memory_units WHERE id = ? AND type = 'conversational'",
             (memory_id,),
         )
-        return self._row_to_unit(row) if row else None
+        return MemoryUnit.from_row(row) if row else None
 
     async def delete(self, memory_id: str) -> bool:
         cursor = await self.db.execute(
@@ -97,23 +97,4 @@ class ConversationalMemory:
         await self.db.commit()
         return cursor.rowcount
 
-    # ── Helpers ───────────────────────────────────────────────
 
-    @staticmethod
-    def _row_to_unit(row) -> MemoryUnit:
-        return MemoryUnit(
-            id=row["id"],
-            type=row["type"],
-            content=row["content"],
-            metadata=json.loads(row["metadata"] or "{}"),
-            timestamp=datetime.fromisoformat(row["timestamp"]),
-            confidence=row["confidence"],
-            decay_rate=row["decay_rate"],
-            last_accessed=(
-                datetime.fromisoformat(row["last_accessed"])
-                if row["last_accessed"]
-                else None
-            ),
-            access_count=row["access_count"],
-            session_id=row["session_id"],
-        )

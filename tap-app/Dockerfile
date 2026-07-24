@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Installa requirements (prima requirements.txt se esiste, poi hybrid)
 COPY requirements*.txt ./
-RUN pip install --no-cache-dir -r requirements.txt 2>/dev/null || true
+RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements-hybrid.txt
 
 # Copia sorgenti, entrypoints e scripts
@@ -31,6 +31,10 @@ COPY scripts/ ./scripts/
 # CRITICO: /app/src nel PYTHONPATH per import diretti tipo 'from tap.config import ...'
 ENV PYTHONPATH=/app/src
 ENV PYTHONUNBUFFERED=1
+
+# Non-root user (after all file operations)
+RUN useradd -m appuser && chown -R appuser:appuser /app
+USER appuser
 
 # ------------------------------------------------------------------------------
 # HYDRA-API  (src/tap/api.py)

@@ -77,7 +77,7 @@ $connectorConfig = @{
         "publication.name"                        = "tap_debezium_pub"
 
         # Gestione schema
-        "schema.history.internal.kafka.bootstrap.servers" = "kafka:9092"
+        "schema.history.internal.kafka.bootstrap.servers" = "kafka:29092"
         "schema.history.internal.kafka.topic"    = "tap.cdc.schema-history"
 
         # Trasformazioni: estrae solo il valore after per ogni evento

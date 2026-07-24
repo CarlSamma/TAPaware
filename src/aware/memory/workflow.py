@@ -75,7 +75,7 @@ class WorkflowMemory:
             )
             for row in rows:
                 if row["id"] not in existing_ids:
-                    results.append((self._row_to_unit(row), 0.6))
+                    results.append((MemoryUnit.from_row(row), 0.6))
 
         results.sort(key=lambda x: x[1], reverse=True)
         return results[:limit]
@@ -85,7 +85,7 @@ class WorkflowMemory:
             "SELECT * FROM memory_units WHERE id = ? AND type = 'workflow'",
             (memory_id,),
         )
-        return self._row_to_unit(row) if row else None
+        return MemoryUnit.from_row(row) if row else None
 
     async def delete(self, memory_id: str) -> bool:
         cursor = await self.db.execute(
@@ -123,23 +123,4 @@ class WorkflowMemory:
         await self.db.commit()
         return cursor.rowcount
 
-    # ── Helpers ───────────────────────────────────────────────
 
-    @staticmethod
-    def _row_to_unit(row) -> MemoryUnit:
-        return MemoryUnit(
-            id=row["id"],
-            type=row["type"],
-            content=row["content"],
-            metadata=json.loads(row["metadata"] or "{}"),
-            timestamp=datetime.fromisoformat(row["timestamp"]),
-            confidence=row["confidence"],
-            decay_rate=row["decay_rate"],
-            last_accessed=(
-                datetime.fromisoformat(row["last_accessed"])
-                if row["last_accessed"]
-                else None
-            ),
-            access_count=row["access_count"],
-            session_id=row["session_id"],
-        )

@@ -4,6 +4,13 @@ Integrates 7-type Agent Memory with the TAP Framework for adaptive,
 stateful adversarial research.
 """
 
+from __future__ import annotations
+
+import importlib
+from typing import TYPE_CHECKING
+
+__version__ = "0.1.0"
+
 from aware.api import AwareEngine, ProbeContext, ProbeRequest, SessionEndResult
 from aware.config import AwareConfig
 from aware.context import (
@@ -25,6 +32,7 @@ from aware.memory import (
     MemoryManager,
     MemoryUnit,
     RecallResult,
+    RemoteEmbeddingService,
     SummaryMemory,
     ToolboxMemory,
     ToolLogMemory,
@@ -32,17 +40,20 @@ from aware.memory import (
     WorkflowMemory,
 )
 
+if TYPE_CHECKING:
+    pass
+
 __all__ = [
     "AwareConfig",
     "AwareEngine",
     "AttackType",
-    "Countermeasure",
     "AttackTypeHistory",
     "ContextAssembler",
     "ContextCompressor",
     "ContextMonitor",
     "ContextStatus",
     "ConversationalMemory",
+    "Countermeasure",
     "Database",
     "EmbeddingService",
     "EntityMemory",
@@ -52,6 +63,7 @@ __all__ = [
     "ProbeContext",
     "ProbeRequest",
     "RecallResult",
+    "RemoteEmbeddingService",
     "SessionEndResult",
     "SummaryMemory",
     "TokenCounter",
@@ -59,4 +71,5 @@ __all__ = [
     "ToolLogMemory",
     "VectorStore",
     "WorkflowMemory",
+    "__version__",
 ]

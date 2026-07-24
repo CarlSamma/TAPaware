@@ -246,17 +246,13 @@ class StreamListener:
                 self._oauth2_token = new_token
                 # settings are persisted by helper; keep in-memory in sync
                 self.settings.twitter_oauth2_access_token = new_token
-                # Persist to .env as best-effort (helper may already have), keep file in sync
+                # Persist to .env as best-effort (helper normalizes keys to uppercase)
                 try:
                     save_env_vars({"twitter_oauth2_access_token": new_token})
                 except Exception:
                     pass
 
                 log.info("oauth2_token_refreshed_shared_helper")
-                try:
-                    save_env_vars({"TWITTER_OAUTH2_ACCESS_TOKEN": new_token})
-                except Exception:
-                    pass
                 return new_token
             return None
         except Exception as e:

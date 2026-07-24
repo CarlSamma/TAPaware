@@ -23,8 +23,6 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    volumes:
-      - ./.env:/app/.env
     environment:
       SERVICE_NAME: hydra-api
       NEO4J_URI: bolt://neo4j:7687
@@ -33,6 +31,15 @@ services:
       POSTGRES_DSN: postgresql+asyncpg://tap:tap@postgres:5432/hydra
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - tap-net
     healthcheck:
@@ -55,7 +62,6 @@ services:
     env_file:
       - .env
     environment:
-      OAUTHLIB_INSECURE_TRANSPORT: 1
       SERVICE_NAME: tap-engine
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       KAFKA_GROUP_ID: tap-engine-group
@@ -64,6 +70,15 @@ services:
       NEO4J_PASSWORD: tapv4hydra
       POSTGRES_DSN: postgresql+asyncpg://tap:tap@postgres:5432/chronos
       REDIS_URL: redis://redis:6379/2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - tap-net
 
@@ -84,6 +99,13 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       REDIS_URL: redis://redis:6379/3
       POSTGRES_DSN: postgresql+asyncpg://tap:tap@postgres:5432/chronos
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - tap-net
 
@@ -105,6 +127,15 @@ services:
       POSTGRES_DSN: postgresql+asyncpg://tap:tap@postgres:5432/chronos
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       REDIS_URL: redis://redis:6379/1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      temporal:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - tap-net
 
@@ -132,10 +163,9 @@ services:
       - tap-net
 
 # ------------------------------------------------------------------------------
-# Rete esterna — creata da docker-compose.infra.yml
-# Nome verificato con: docker network ls | Select-String "hybrid"
+# Rete esterna — creata da docker-compose.infra.yml (network name: tap-net)
 # ------------------------------------------------------------------------------
 networks:
   tap-net:
     external: true
-    name: hybrid_default
+    name: tap-net

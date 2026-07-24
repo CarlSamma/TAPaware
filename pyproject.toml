@@ -1,27 +1,33 @@
 [build-system]
-requires = ["setuptools>=68.0"]
+requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "aware"
 version = "0.1.0"
 description = "Memory-Aware AI Agent Framework"
+readme = "README.md"
+license = "Apache-2.0"
+authors = [{ name = "TAPaware Contributors" }]
 requires-python = ">=3.10"
 dependencies = [
     "aiosqlite>=0.19.0",
     "pydantic>=2.0.0",
     "pydantic-settings>=2.0.0",
     "httpx>=0.24.0",
-    "sentence-transformers>=2.2.0",
     "openai>=1.0.0",
     "tiktoken>=0.5.0",
 ]
 
 [project.optional-dependencies]
+embeddings = ["sentence-transformers>=2.2.0"]
+vss = ["sqlite-vss>=0.1.0"]
+yaml = ["pyyaml>=6.0"]
 dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
     "ruff>=0.1.0",
+    "mypy>=1.0.0",
 ]
 
 [tool.pytest.ini_options]
@@ -31,12 +37,22 @@ markers = [
     "real_embeddings: tests that require a real embedding API key",
 ]
 
+[tool.ruff]
+line-length = 120
+exclude = ["tap-app/"]
+
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
-ignore = ["E501"]
 
-[tool.ruff]
-exclude = ["tap-app/"]
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
 
 [tool.setuptools.packages.find]
 where = ["src"]

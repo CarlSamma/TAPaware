@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import uuid
@@ -107,9 +108,8 @@ class KnowledgeExpansion:
             raise ValueError(f"Attack type {attack_type_id} not found")
 
         now = datetime.now(timezone.utc)
-        for key, value in updates.items():
-            if key not in ("id", "created_at", "version", "embedding"):
-                setattr(current, key, value)
+        filtered = {k: v for k, v in updates.items() if k not in ("id", "created_at", "version", "embedding")}
+        current = current.model_copy(update=filtered)
         current.updated_at = now
         current.version += 1
 
@@ -282,8 +282,11 @@ class KnowledgeExpansion:
         if not path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        def _read_json():
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+
+        data = await asyncio.to_thread(_read_json)
 
         types_data = data if isinstance(data, list) else data.get("attack_types", [])
         count = 0
@@ -314,15 +317,21 @@ class KnowledgeExpansion:
         if not path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        with open(path, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
+        def _read_yaml():
+            with open(path, "r", encoding="utf-8") as f:
+                return yaml.safe_load(f)
+
+        data = await asyncio.to_thread(_read_yaml)
 
         # Reuse JSON logic
         types_data = data if isinstance(data, list) else data.get("attack_types", [])
         temp_path = path.with_suffix(".json.tmp")
-        with open(temp_path, "w", encoding="utf-8") as f:
-            json.dump({"attack_types": types_data}, f)
 
+        def _write_temp():
+            with open(temp_path, "w", encoding="utf-8") as f:
+                json.dump({"attack_types": types_data}, f)
+
+        await asyncio.to_thread(_write_temp)
         count = await self.import_from_json(str(temp_path))
         temp_path.unlink(missing_ok=True)
         return count
@@ -357,8 +366,12 @@ class KnowledgeExpansion:
                 result["history"].extend([h.model_dump() for h in history])
 
         Path(file_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(result, f, indent=2, default=str)
+
+        def _write_json():
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(result, f, indent=2, default=str)
+
+        await asyncio.to_thread(_write_json)
 
     async def export_to_yaml(
         self, file_path: str, include_countermeasures: bool = True
@@ -381,8 +394,12 @@ class KnowledgeExpansion:
             export_data.append(d)
 
         Path(file_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(file_path, "w", encoding="utf-8") as f:
-            yaml.dump({"attack_types": export_data}, f, default_flow_style=False)
+
+        def _write_yaml():
+            with open(file_path, "w", encoding="utf-8") as f:
+                yaml.dump({"attack_types": export_data}, f, default_flow_style=False)
+
+        await asyncio.to_thread(_write_yaml)
 
     # ── History / Versioning ──────────────────────────────────
 
@@ -462,8 +479,8 @@ class KnowledgeExpansion:
         self, technique: str
     ) -> List[AttackType]:
         """Get attack type info to enrich probe generation."""
-        results, _ = zip(*await self.search_attack_types(technique, limit=5)) if await self.search_attack_types(technique, limit=5) else ([], [])
-        return list(results)
+        results = await self.search_attack_types(technique, limit=5)
+        return [at for at, _ in results]
 
     # ── Internal helpers ──────────────────────────────────────
 

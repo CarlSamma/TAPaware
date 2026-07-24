@@ -87,7 +87,7 @@ class KnowledgeMemory:
             )
             for row in rows:
                 if row["id"] not in existing_ids:
-                    results.append((self._row_to_unit(row), 0.6))
+                    results.append((MemoryUnit.from_row(row), 0.6))
 
         results.sort(key=lambda x: x[1], reverse=True)
         return results[:limit]
@@ -97,7 +97,7 @@ class KnowledgeMemory:
             "SELECT * FROM memory_units WHERE id = ? AND type = 'knowledge'",
             (memory_id,),
         )
-        return self._row_to_unit(row) if row else None
+        return MemoryUnit.from_row(row) if row else None
 
     async def delete(self, memory_id: str) -> bool:
         cursor = await self.db.execute(
@@ -123,7 +123,7 @@ class KnowledgeMemory:
                ORDER BY timestamp DESC LIMIT ?""",
             (category, limit),
         )
-        return [self._row_to_unit(r) for r in rows]
+        return [MemoryUnit.from_row(r) for r in rows]
 
     async def consolidate(self, conversational) -> int:
         """Consolidate repeated episodic patterns into semantic knowledge."""
@@ -138,7 +138,7 @@ class KnowledgeMemory:
 
         consolidated = 0
         for row in rows:
-            unit = conversational._row_to_unit(row)
+            unit = MemoryUnit.from_row(row)
             # Check if already in knowledge
             existing = await self.db.fetchone(
                 """SELECT id FROM memory_units
@@ -171,23 +171,4 @@ class KnowledgeMemory:
         await self.db.commit()
         return cursor.rowcount
 
-    # ── Helpers ───────────────────────────────────────────────
 
-    @staticmethod
-    def _row_to_unit(row) -> MemoryUnit:
-        return MemoryUnit(
-            id=row["id"],
-            type=row["type"],
-            content=row["content"],
-            metadata=json.loads(row["metadata"] or "{}"),
-            timestamp=datetime.fromisoformat(row["timestamp"]),
-            confidence=row["confidence"],
-            decay_rate=row["decay_rate"],
-            last_accessed=(
-                datetime.fromisoformat(row["last_accessed"])
-                if row["last_accessed"]
-                else None
-            ),
-            access_count=row["access_count"],
-            session_id=row["session_id"],
-        )

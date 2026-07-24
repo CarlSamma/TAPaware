@@ -31,6 +31,7 @@ dependencies = [
     "jinja2>=3.1.4",
     "python-dotenv>=1.0.1",
     "structlog>=24.4.0",
+    "aware @ file:../",
 ]
 
 [project.optional-dependencies]
@@ -54,9 +55,6 @@ hybrid = [
     "redis>=5.2.0",
     "clickhouse-driver>=0.2.9",
     "testcontainers>=4.8.0",
-]
-aware = [
-    "tiktoken>=0.7",
 ]
 
 [project.scripts]

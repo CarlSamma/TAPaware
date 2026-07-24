@@ -17,26 +17,22 @@ python -m pytest tests/test_knowledge_expansion.py -v -p no:postgresql
 python -c "import ast, glob; [ast.parse(open(f).read()) for f in glob.glob('src/**/*.py', recursive=True)]"
 ```
 
-## Import gotcha — DO NOT use relative imports across packages
+## Imports
 
-`src/memory/` and `src/config.py` live at different package depths. Relative imports like `from ..config import AwareConfig` **fail at runtime**. Every file that needs `AwareConfig` from inside `src/memory/` uses this workaround:
+`aware` is a pip-installable package. All imports use absolute paths from the `aware` root:
 
 ```python
-import sys
-from pathlib import Path
-_src = str(Path(__file__).parent.parent)
-if _src not in sys.path:
-    sys.path.insert(0, _src)
-from config import AwareConfig
+from aware.config import AwareConfig
+from aware.memory.models import AttackType
+from aware.memory.knowledge_expansion import KnowledgeExpansion
+from aware.api.engine_hooks import AwareEngine
 ```
 
-Same pattern in `src/api/engine_hooks.py`, `src/api/schemas.py`, and `tests/conftest.py`.
-
-**If you add a new file in `src/memory/` or `src/api/` that needs config or cross-package imports, copy this pattern.** Do not use relative `..` imports.
+Do **not** use relative `..` imports or `sys.path` hacks — the package structure handles resolution.
 
 ## Dependencies
 
-`pyproject.toml` is the source of truth. `requirements.txt` is stale (missing `pydantic-settings`).
+`pyproject.toml` is the single source of truth. There is no `requirements.txt`.
 
 Key deps: `aiosqlite`, `pydantic>=2`, `pydantic-settings`, `sentence-transformers`, `openai`, `tiktoken`, `sqlite-vss`.
 
@@ -45,7 +41,7 @@ Optional (not installed in dev env): `sentence-transformers` (real model), `sqli
 ## Test architecture
 
 - All tests in `tests/` use `pytest-asyncio` with `asyncio_mode = "auto"` (from `pyproject.toml`)
-- `pythonpath = ["src"]` in pyproject.toml, but tests also add `src/` to `sys.path` in `conftest.py`
+- `pythonpath = ["src"]` in pyproject.toml for package discovery
 - `conftest.py` provides `MockEmbedder`, `db` (in-memory SQLite), `vector_store`, `memory_manager`, and `sample_*` fixtures
 - Engine/integration tests (`test_engine_hooks.py`, `integration/`) create their own `MockEmbedder` + wire stores manually — don't use the shared `memory_manager` fixture
 - `knowledge_expansion` tests use the `sample_attack_type` fixture from conftest
@@ -53,30 +49,31 @@ Optional (not installed in dev env): `sentence-transformers` (real model), `sqli
 ## Project layout
 
 ```
-src/
-  config.py              # AwareConfig (Pydantic BaseSettings, AWARE_ env prefix)
+src/aware/
+  __init__.py
+  config.py                # AwareConfig (Pydantic BaseSettings, AWARE_ env prefix)
   memory/
-    models.py            # MemoryUnit, AttackType, Countermeasure, AttackTypeHistory, etc.
-    database.py          # Schema DDL (6 tables + vss virtual table), aiosqlite
-    embeddings.py        # EmbeddingService (lazy sentence-transformers)
-    vector_store.py      # VectorStore (sqlite-vss or brute-force fallback)
-    manager.py           # MemoryManager — orchestrates 7 stores
+    models.py              # MemoryUnit, AttackType, Countermeasure, AttackTypeHistory, etc.
+    database.py            # Schema DDL (6 tables + vss virtual table), aiosqlite
+    embeddings.py          # EmbeddingService + RemoteEmbeddingService (API-based)
+    vector_store.py        # VectorStore (sqlite-vss or brute-force fallback)
+    manager.py             # MemoryManager — orchestrates 7 stores
     knowledge_expansion.py # Attack type CRUD + versioning + import/export
-    conversational.py    # ...entity.py, workflow.py, toolbox.py, summary.py, tool_log.py
-    consolidation.py     # episodic → semantic promotion
-    decay.py             # exponential confidence decay
-    persistence.py       # cross-session save/load
+    conversational.py      # ...entity.py, workflow.py, toolbox.py, summary.py, tool_log.py
+    consolidation.py       # episodic → semantic promotion
+    decay.py               # exponential confidence decay
+    persistence.py         # cross-session save/load
   context/
-    tokenizer.py         # tiktoken-based
-    assembler.py         # token-budget-aware
-    compressor.py        # LLM summarization + truncation fallback
-    monitor.py           # event-driven threshold callbacks
+    tokenizer.py           # tiktoken-based
+    assembler.py           # token-budget-aware
+    compressor.py          # LLM summarization + truncation fallback
+    monitor.py             # event-driven threshold callbacks
   api/
-    engine_hooks.py      # AwareEngine — main integration point for TAP
-    schemas.py           # request/response models
+    engine_hooks.py        # AwareEngine — main integration point for TAP
+    schemas.py             # request/response models
   data/
-    seed_attack_types.json  # 12 seed attack types (V-Genome + extras)
-tests/                   # 121 tests, all passing
+    seed_attack_types.json # 12 seed attack types (V-Genome + extras)
+tests/                     # 121 tests, all passing
 ```
 
 ## Style
@@ -91,6 +88,5 @@ tests/                   # 121 tests, all passing
 
 - No real `sentence-transformers` model installed — `MockEmbedder` used in tests
 - No `sqlite-vss` — vector search degrades to brute-force cosine
-- `pydantic-settings` missing from `requirements.txt` (it's in pyproject.toml)
 - No CI/CD, no linting config, no type checking (mypy/pyright)
 - No integration with actual TAP engine yet

@@ -1,6 +1,8 @@
 # LLM Injection Research
 
 > Comprehensive analysis of 8 NotebookLM notebooks covering LLM injection techniques, success rates, and defenses.
+>
+> *Last verified: 2026-07-24*
 
 ## Notebooks Analyzed
 

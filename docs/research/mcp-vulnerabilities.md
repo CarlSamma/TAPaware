@@ -1,6 +1,8 @@
 # MCP Vulnerabilities
 
 > Model Context Protocol security risks and attack vectors.
+>
+> *Last verified: 2026-07-24*
 
 ## Critical Vulnerabilities
 
@@ -42,6 +44,15 @@
 - **Impact**: 2.9% of ClawHub skills, 21% of malicious samples
 - **Example**: `curl | bash` patterns, runtime script downloads
 
+## The "Lethal Trifecta"
+
+Maximum risk occurs when combining:
+1. **Private data** (API keys, messages)
+2. **Untrusted instructions** (external context)
+3. **Exfiltration vectors** (network tools)
+
+No convincing mitigations exist today.
+
 ## Attack Patterns
 
 ### Exfiltration via Encoding
@@ -58,6 +69,14 @@
 - MINJA (NeurIPS 2025): Inject malicious records via interaction patterns
 - MemoryGraft: Implant false "successful experiences"
 - OWASP ASI06: Agentic memory poisoning as top-tier risk
+
+## Statistics
+
+- 13.4% of skills contain critical vulnerabilities
+- 91% of confirmed malicious skills use prompt injection
+- 76 confirmed malicious payloads in 3,984 skills analyzed
+- 17.7% of ClawHub skills vulnerable to third-party content injection
+- 21% of malicious samples use remote code execution
 
 ## Defense Recommendations
 

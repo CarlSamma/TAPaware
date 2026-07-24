@@ -1,7 +1,7 @@
 # AGENTS.md — TAP Framework
 
 ## Project Identity
-- **Name**: TAP Framework (Tree of Attacks with Pruning) v3.0.0
+- **Name**: TAP Framework (Tree of Attacks with Pruning) v3.1
 - **Purpose**: LLM security research — adversarial attack pipeline against `@HackingA0` on X/Twitter
 - **Branch**: `hybridGUI` (active development)
 - **License**: Apache-2.0
@@ -115,7 +115,7 @@ Techniques are `AttackTechnique` nodes in Neo4j. Schema:
 
 - `.env` file required (Twitter OAuth, OpenRouter API key, Neo4j, Kafka, PostgreSQL, Redis, Temporal)
 - Settings via `pydantic-settings` — `get_settings()` cached singleton
-- No `.env.example` exists — check `src/tap/config.py` for all env var names
+- `.env.example` available with placeholder keys
 - Kafka dual listeners: internal Docker `kafka:29092`, host `localhost:9092`
 
 ## Improvement Focus

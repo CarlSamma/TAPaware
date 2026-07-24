@@ -18,72 +18,44 @@
 ## Repository Structure
 
 ```
-Aware/
+TAPaware/
 ├── README.md
-├── pyproject.toml                 # Project config + pytest settings
-├── requirements.txt
-├── src/
-│   ├── __init__.py
-│   ├── config.py                  # Centralized Pydantic settings
+├── AGENTS.md              # Agent operational guide
+├── pyproject.toml         # Project config + pytest settings
+├── src/aware/             # Installable Python package
+│   ├── config.py          # Centralized Pydantic settings
 │   ├── memory/
-│   │   ├── __init__.py
-│   │   ├── models.py              # Pydantic schemas (MemoryUnit, AttackType, etc.)
-│   │   ├── database.py            # SQLite schema + connection management
-│   │   ├── embeddings.py          # sentence-transformers wrapper
-│   │   ├── vector_store.py        # sqlite-vss wrapper with fallback
-│   │   ├── manager.py             # MemoryManager (unified CRUD)
-│   │   ├── conversational.py      # ConversationalMemory (SQLite + keyword search)
-│   │   ├── knowledge.py           # KnowledgeMemory (vector search + dedup)
+│   │   ├── models.py      # Pydantic schemas (MemoryUnit, AttackType, etc.)
+│   │   ├── database.py    # SQLite schema + connection management
+│   │   ├── embeddings.py  # EmbeddingService + RemoteEmbeddingService
+│   │   ├── vector_store.py # VectorStore (sqlite-vss or brute-force fallback)
+│   │   ├── manager.py     # MemoryManager (unified CRUD)
 │   │   ├── knowledge_expansion.py # Attack type knowledge management
-│   │   ├── workflow.py            # WorkflowMemory (semantic dedup)
-│   │   ├── toolbox.py             # ToolboxMemory (semantic tool search)
-│   │   ├── entity.py              # EntityMemory (entity profiles)
-│   │   ├── summary.py             # SummaryMemory (LLM compression)
-│   │   ├── tool_log.py            # ToolLogMemory (audit trail)
-│   │   ├── consolidation.py       # Episodic → semantic promotion
-│   │   ├── decay.py               # Exponential confidence decay
-│   │   └── persistence.py         # Cross-session save/load + backup
+│   │   ├── conversational.py, entity.py, workflow.py, toolbox.py
+│   │   ├── summary.py, tool_log.py
+│   │   ├── consolidation.py, decay.py, persistence.py
+│   │   └── ...
 │   ├── context/
-│   │   ├── __init__.py
-│   │   ├── tokenizer.py           # tiktoken-based token counting
-│   │   ├── assembler.py           # Token-budget-aware context assembly
-│   │   ├── compressor.py          # LLM summarization + truncation fallback
-│   │   └── monitor.py             # Event-driven threshold monitoring
+│   │   ├── tokenizer.py, assembler.py, compressor.py, monitor.py
 │   ├── api/
-│   │   ├── __init__.py
-│   │   ├── engine_hooks.py        # AwareEngine (TAP integration interface)
-│   │   └── schemas.py             # Request/response models
+│   │   ├── engine_hooks.py  # AwareEngine (TAP integration interface)
+│   │   └── schemas.py       # Request/response models
 │   └── data/
-│       └── seed_attack_types.json # 12 V-Genome + evasion types
-├── tests/                         # 121 tests, all passing
-│   ├── conftest.py
-│   ├── test_models.py
-│   ├── test_database.py
-│   ├── test_embeddings.py
-│   ├── test_vector_store.py
-│   ├── test_memory_*.py           # Per-type memory tests
-│   ├── test_knowledge_expansion.py
-│   ├── test_consolidation.py
-│   ├── test_decay.py
-│   ├── test_persistence.py
-│   ├── test_context_engineering.py
-│   ├── test_manager.py
-│   ├── test_engine_hooks.py
-│   └── integration/
-│       ├── test_full_pipeline.py
-│       └── test_cross_session.py
-├── data/                          # Operational data from TAP runs
-└── docs/
-    ├── analysis/                  # TAP framework analysis, memory gaps
-    ├── plans/                     # Integration plan
-    └── research/                  # LLM injection, MCP vulnerabilities
+│       └── seed_attack_types.json
+├── tests/                 # 121 tests, all passing
+├── tap-app/               # TAP Framework v3.1 full-stack app
+├── docs/
+│   ├── architecture.md
+│   ├── analysis/          # TAP framework analysis, memory gaps
+│   ├── plans/             # Integration plan
+│   └── research/          # LLM injection, MCP vulnerabilities
+└── data/                  # Operational data from TAP runs
 ```
 
 ## Quick Start
 
 ```bash
-cd Aware
-pip install -r requirements.txt
+pip install -e ".[dev]"
 
 # Run tests
 python -m pytest tests/ -v -p no:postgresql
@@ -91,8 +63,8 @@ python -m pytest tests/ -v -p no:postgresql
 # Use the engine
 python -c "
 import asyncio
-from src.api.engine_hooks import AwareEngine
-from src.memory.models import AttackType
+from aware.api.engine_hooks import AwareEngine
+from aware.memory.models import AttackType
 
 async def main():
     engine = AwareEngine()
@@ -117,8 +89,8 @@ asyncio.run(main())
 Users can expand attack type knowledge at runtime:
 
 ```python
-from memory.knowledge_expansion import KnowledgeExpansion
-from memory.models import AttackType, Countermeasure
+from aware.memory.knowledge_expansion import KnowledgeExpansion
+from aware.memory.models import AttackType, Countermeasure
 
 # Add attack type with metadata
 at = AttackType(

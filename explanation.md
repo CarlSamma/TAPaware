@@ -1,5 +1,7 @@
 # Aware — Implementation Plan
 
+> **Historical document** — This plan was created before implementation (July 2026) and was never updated afterward. Several statements are now false. For current state, see `plan.md`.
+
 *Generated from scope analysis Q&A session — July 2026*
 
 ## 1. Context
